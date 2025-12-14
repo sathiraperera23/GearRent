@@ -15,7 +15,8 @@ public class ServiceFactory {
     public enum ServiceType {
         EQUIPMENT,
         BRANCH,
-        RENTAL
+        RENTAL,
+        RESERVATION,
     }
 
     public SuperService getService(ServiceType type) {

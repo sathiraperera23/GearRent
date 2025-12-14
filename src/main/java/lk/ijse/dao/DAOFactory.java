@@ -41,7 +41,8 @@ public class DAOFactory {
         EQUIPMENT,
         CATEGORY,
         BRANCH,
-        RENTAL
+        RENTAL,
+        RESERVATION,
     }
 
 }
