@@ -11,4 +11,6 @@ public interface ConfigService extends SuperService {
     boolean deleteConfig(int id) throws Exception;
     ConfigDTO searchConfig(int id) throws Exception;
     List<ConfigDTO> getAllConfigs() throws Exception;
+    ConfigDTO getConfig() throws Exception; // <-- add this
+
 }

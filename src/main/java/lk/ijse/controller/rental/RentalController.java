@@ -5,7 +5,9 @@ import lk.ijse.dto.RentalDTO;
 import lk.ijse.service.ServiceFactory;
 import lk.ijse.service.custom.RentalService;
 
+import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
 
@@ -27,40 +29,29 @@ public class RentalController {
             System.out.print("Equipment ID: ");
             long equipmentId = Long.parseLong(scanner.nextLine());
 
-            System.out.print("Rented From (yyyy-mm-dd): ");
-            Date rentedFrom = Date.valueOf(scanner.nextLine());
+            System.out.print("Rented From (YYYY-MM-DD): ");
+            LocalDate rentedFrom = LocalDate.parse(scanner.nextLine());
 
-            System.out.print("Rented To (yyyy-mm-dd): ");
-            Date rentedTo = Date.valueOf(scanner.nextLine());
+            System.out.print("Rented To (YYYY-MM-DD): ");
+            LocalDate rentedTo = LocalDate.parse(scanner.nextLine());
 
             System.out.print("Daily Price: ");
-            double dailyPrice = Double.parseDouble(scanner.nextLine());
+            BigDecimal dailyPrice = new BigDecimal(scanner.nextLine());
 
             System.out.print("Security Deposit: ");
-            double securityDeposit = Double.parseDouble(scanner.nextLine());
+            BigDecimal securityDeposit = new BigDecimal(scanner.nextLine());
 
-            System.out.print("Reservation ID (optional, press Enter to skip): ");
-            String reservationInput = scanner.nextLine();
-            Long reservationId = reservationInput.isEmpty()
-                    ? null
-                    : Long.parseLong(reservationInput);
-
-            RentalDTO dto = new RentalDTO(
-                    0,
-                    customerId,
-                    equipmentId,
-                    rentedFrom,
-                    rentedTo,
-                    dailyPrice,
-                    securityDeposit,
-                    reservationId,
-                    "Open",
-                    null
-            );
+            RentalDTO dto = new RentalDTO();
+            dto.setCustomerId(customerId);
+            dto.setEquipmentId(equipmentId);
+            dto.setRentedFrom(rentedFrom);
+            dto.setRentedTo(rentedTo);
+            dto.setDailyPrice(dailyPrice);
+            dto.setSecurityDeposit(securityDeposit);
+            dto.setStatus("Open");
 
             boolean success = rentalService.saveRental(dto);
-            System.out.println(success ? "Rental created successfully!" : "Rental creation failed.");
-
+            System.out.println(success ? "Rental Added!" : "Failed to add rental.");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -115,20 +106,19 @@ public class RentalController {
     }
 
     /* ================= UPDATE ================= */
-
     public void updateRental() {
         try {
             System.out.print("Rental ID to update: ");
             long rentalId = Long.parseLong(scanner.nextLine());
 
             System.out.print("New Rented To (yyyy-mm-dd): ");
-            Date rentedTo = Date.valueOf(scanner.nextLine());
+            LocalDate rentedTo = LocalDate.parse(scanner.nextLine());
 
             System.out.print("New Daily Price: ");
-            double dailyPrice = Double.parseDouble(scanner.nextLine());
+            BigDecimal dailyPrice = new BigDecimal(scanner.nextLine());
 
             System.out.print("New Security Deposit: ");
-            double securityDeposit = Double.parseDouble(scanner.nextLine());
+            BigDecimal securityDeposit = new BigDecimal(scanner.nextLine());
 
             System.out.print("Status (Open/Closed): ");
             String status = scanner.nextLine();

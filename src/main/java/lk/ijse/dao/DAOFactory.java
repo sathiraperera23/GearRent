@@ -44,6 +44,7 @@ public class DAOFactory {
         RENTAL,
         RESERVATION,
         DAMAGE,
+        CONFIG,
     }
 
 }

@@ -12,9 +12,8 @@ public class ConfigDTO {
 
     public ConfigDTO() {}
 
-    public ConfigDTO(int configId, BigDecimal lateFeePerDay, BigDecimal maxDeposit,
-                     BigDecimal regularDiscount, BigDecimal silverDiscount, BigDecimal goldDiscount) {
-        this.configId = configId;
+    public ConfigDTO(BigDecimal lateFeePerDay, BigDecimal maxDeposit, BigDecimal regularDiscount,
+                     BigDecimal silverDiscount, BigDecimal goldDiscount) {
         this.lateFeePerDay = lateFeePerDay;
         this.maxDeposit = maxDeposit;
         this.regularDiscount = regularDiscount;
@@ -22,7 +21,7 @@ public class ConfigDTO {
         this.goldDiscount = goldDiscount;
     }
 
-    // Getters and Setters
+    // Getters & Setters
     public int getConfigId() { return configId; }
     public void setConfigId(int configId) { this.configId = configId; }
 

@@ -11,6 +11,22 @@ import java.util.List;
 public class ConfigDAOImpl implements ConfigDAO {
 
     @Override
+    public Config findConfig() throws Exception {
+        ResultSet rs = CrudUtil.executeQuery("SELECT * FROM config LIMIT 1"); // single row
+        if (rs.next()) {
+            return new Config(
+                    rs.getInt("config_id"),
+                    rs.getBigDecimal("late_fee_per_day"),
+                    rs.getBigDecimal("max_deposit"),
+                    rs.getBigDecimal("regular_discount"),
+                    rs.getBigDecimal("silver_discount"),
+                    rs.getBigDecimal("gold_discount")
+            );
+        }
+        return null;
+    }
+
+    @Override
     public boolean save(Config config) throws Exception {
         String sql = "INSERT INTO config (late_fee_per_day, max_deposit, regular_discount, silver_discount, gold_discount) VALUES (?, ?, ?, ?, ?)";
         return CrudUtil.executeUpdate(sql,
