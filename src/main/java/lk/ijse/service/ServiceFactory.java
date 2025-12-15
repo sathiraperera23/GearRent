@@ -17,6 +17,7 @@ public class ServiceFactory {
         BRANCH,
         RENTAL,
         RESERVATION,
+        CONFIG,
     }
 
     public SuperService getService(ServiceType type) {

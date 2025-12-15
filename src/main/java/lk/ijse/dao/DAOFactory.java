@@ -43,6 +43,7 @@ public class DAOFactory {
         BRANCH,
         RENTAL,
         RESERVATION,
+        DAMAGE,
     }
 
 }
