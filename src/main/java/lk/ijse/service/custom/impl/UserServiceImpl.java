@@ -1,4 +1,4 @@
-package lk.ijse.service.custom.Impl;
+package lk.ijse.service.custom.impl;
 
 import lk.ijse.dao.DAOFactory;
 import lk.ijse.dao.custom.UserDAO;

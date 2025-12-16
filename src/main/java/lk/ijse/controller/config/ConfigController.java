@@ -32,7 +32,14 @@ public class ConfigController {
             System.out.print("Gold Discount: ");
             BigDecimal gold = new BigDecimal(scanner.nextLine());
 
-            ConfigDTO dto = new ConfigDTO(0, lateFee, maxDeposit, regular, silver, gold);
+            ConfigDTO dto = new ConfigDTO(
+                    lateFee,
+                    maxDeposit,
+                    regular,
+                    silver,
+                    gold
+            );
+// ID is auto-generated → DO NOT set it here
             boolean success = configService.saveConfig(dto);
             System.out.println(success ? "Config added!" : "Failed to add config.");
         } catch (Exception e) {
@@ -73,7 +80,15 @@ public class ConfigController {
             System.out.print("Gold Discount: ");
             BigDecimal gold = new BigDecimal(scanner.nextLine());
 
-            ConfigDTO dto = new ConfigDTO(id, lateFee, maxDeposit, regular, silver, gold);
+            ConfigDTO dto = new ConfigDTO(
+                    lateFee,
+                    maxDeposit,
+                    regular,
+                    silver,
+                    gold
+            );
+            dto.setConfigId(id);   // set ID via setter
+
             boolean success = configService.updateConfig(dto);
             System.out.println(success ? "Config updated!" : "Update failed.");
         } catch (Exception e) {

@@ -1,4 +1,4 @@
-package lk.ijse.service.custom.Impl;
+package lk.ijse.service.custom.impl;
 
 import lk.ijse.dao.DAOFactory;
 import lk.ijse.dao.custom.EquipmentDAO;
@@ -14,7 +14,7 @@ public class EquipmentServiceImpl implements EquipmentService {
     private final EquipmentDAO equipmentDAO;
 
     public EquipmentServiceImpl() {
-        this.equipmentDAO = (EquipmentDAO) DAOFactory.getInstance().getDAO(DAOFactory.EQUIPMENT);
+        this.equipmentDAO = (EquipmentDAO) DAOFactory.getInstance().getDAO(DAOFactory.DAOTypes.EQUIPMENT);
     }
 
     // Convert DTO → Entity

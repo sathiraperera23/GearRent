@@ -13,20 +13,20 @@ public class ReservationDAOImpl implements ReservationDAO {
     @Override
     public boolean save(Reservation r) throws Exception {
         String sql = "INSERT INTO reservations (customer_id, equipment_id, reserved_from, reserved_to, total_price, status) VALUES (?, ?, ?, ?, ?, ?)";
-        return CrudUtil.executeQuery(sql, r.getCustomerId(), r.getEquipmentId(), r.getReservedFrom(),
+        return CrudUtil.executeUpdate(sql, r.getCustomerId(), r.getEquipmentId(), r.getReservedFrom(),
                 r.getReservedTo(), r.getTotalPrice(), r.getStatus());
     }
 
     @Override
     public boolean update(Reservation r) throws Exception {
         String sql = "UPDATE reservations SET reserved_to=?, total_price=?, status=? WHERE reservation_id=?";
-        return CrudUtil.executeQuery(sql, r.getReservedTo(), r.getTotalPrice(), r.getStatus(), r.getReservationId());
+        return CrudUtil.executeUpdate(sql, r.getReservedTo(), r.getTotalPrice(), r.getStatus(), r.getReservationId());
     }
 
     @Override
     public boolean delete(Long id) throws Exception {
         String sql = "DELETE FROM reservations WHERE reservation_id=?";
-        return CrudUtil.executeQuery(sql, id);
+        return CrudUtil.executeUpdate(sql, id);
     }
 
     @Override

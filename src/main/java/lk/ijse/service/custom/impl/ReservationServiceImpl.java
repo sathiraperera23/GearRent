@@ -226,10 +226,21 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     private boolean isValidStatusTransition(String oldStatus, String newStatus) {
-        return switch (oldStatus) {
-            case "Pending" -> newStatus.equals("Confirmed") || newStatus.equals("Cancelled");
-            case "Confirmed" -> newStatus.equals("Completed") || newStatus.equals("Cancelled");
-            default -> false;
-        };
+
+        if (oldStatus == null || newStatus == null) {
+            return false;
+        }
+
+        switch (oldStatus) {
+            case "Pending":
+                return "Confirmed".equals(newStatus) || "Cancelled".equals(newStatus);
+
+            case "Confirmed":
+                return "Completed".equals(newStatus) || "Cancelled".equals(newStatus);
+
+            default:
+                return false;
+        }
     }
+
 }

@@ -1,6 +1,6 @@
 package lk.ijse.service;
 
-import lk.ijse.service.custom.Impl.*;
+import lk.ijse.service.custom.impl.*;
 
 public class ServiceFactory {
 
@@ -22,7 +22,9 @@ public class ServiceFactory {
         BRANCH,
         RENTAL,
         RESERVATION,
-        CONFIG
+        CONFIG,
+        CATEGORY,
+        USER,
     }
 
     public SuperService getService(ServiceType type) {
@@ -45,11 +47,15 @@ public class ServiceFactory {
                 return new ConfigServiceImpl();
 
             // Uncomment when implemented
-            /*
+
             case BRANCH:
                 return new BranchServiceImpl();
-            */
 
+            case CATEGORY:
+                return new CategoryServiceImpl();
+
+                case USER:
+                    return new UserServiceImpl();
             default:
                 throw new RuntimeException(
                         "No Service implementation found for type: " + type

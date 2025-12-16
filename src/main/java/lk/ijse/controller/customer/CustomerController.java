@@ -43,7 +43,7 @@ public class CustomerController {
                     0L, name, nic, contact, email, address, membership
             );
 
-            boolean success = customerService.saveCustomer(dto);
+            boolean success = customerService.addCustomer(dto);
             System.out.println(success ? "Customer added!" : "Failed to add customer.");
 
         } catch (Exception e) {
