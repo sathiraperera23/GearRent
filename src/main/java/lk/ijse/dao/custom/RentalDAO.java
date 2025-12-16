@@ -4,5 +4,5 @@ import lk.ijse.dao.CrudDAO;
 import lk.ijse.entity.Rental;
 
 public interface RentalDAO extends CrudDAO<Rental, Long> {
-    // Additional methods if needed
+    // Add custom DAO methods if needed
 }

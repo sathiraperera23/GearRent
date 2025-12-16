@@ -1,12 +1,10 @@
 package lk.ijse.controller.rental;
 
-
 import lk.ijse.dto.RentalDTO;
 import lk.ijse.service.ServiceFactory;
 import lk.ijse.service.custom.RentalService;
 
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
@@ -41,6 +39,7 @@ public class RentalController {
             System.out.print("Security Deposit: ");
             BigDecimal securityDeposit = new BigDecimal(scanner.nextLine());
 
+            // Create rental DTO
             RentalDTO dto = new RentalDTO();
             dto.setCustomerId(customerId);
             dto.setEquipmentId(equipmentId);
@@ -51,7 +50,22 @@ public class RentalController {
             dto.setStatus("Open");
 
             boolean success = rentalService.saveRental(dto);
-            System.out.println(success ? "Rental Added!" : "Failed to add rental.");
+            System.out.println(success ? "Rental Added!" : "Failed to add rental. Equipment may not be available.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /* ========== CREATE RENTAL FROM RESERVATION ========== */
+    public void createRentalFromReservation() {
+        try {
+            System.out.print("Enter Reservation ID to convert to Rental: ");
+            long reservationId = Long.parseLong(scanner.nextLine());
+
+            boolean success = rentalService.createRentalFromReservation(reservationId);
+            System.out.println(success ? "Rental created from reservation!" : "Failed. Check reservation status or availability.");
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -111,7 +125,7 @@ public class RentalController {
             System.out.print("Rental ID to update: ");
             long rentalId = Long.parseLong(scanner.nextLine());
 
-            System.out.print("New Rented To (yyyy-mm-dd): ");
+            System.out.print("New Rented To (YYYY-MM-DD): ");
             LocalDate rentedTo = LocalDate.parse(scanner.nextLine());
 
             System.out.print("New Daily Price: ");

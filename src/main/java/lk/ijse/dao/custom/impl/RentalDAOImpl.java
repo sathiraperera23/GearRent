@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
+import java.math.BigDecimal;
 
 public class RentalDAOImpl implements RentalDAO {
 
@@ -19,20 +20,19 @@ public class RentalDAOImpl implements RentalDAO {
                 r.getEquipmentId(),
                 Date.valueOf(r.getRentedFrom()),
                 Date.valueOf(r.getRentedTo()),
-                r.getDailyPrice(),
-                r.getSecurityDeposit(),
+                r.getDailyPrice().doubleValue(),
+                r.getSecurityDeposit().doubleValue(),
                 r.getReservationId(),
                 r.getStatus());
     }
 
     @Override
     public boolean update(Rental r) throws Exception {
-        String sql = "UPDATE rentals SET rented_from=?, rented_to=?, daily_price=?, security_deposit=?, status=? WHERE rental_id=?";
+        String sql = "UPDATE rentals SET rented_to=?, daily_price=?, security_deposit=?, status=? WHERE rental_id=?";
         return CrudUtil.executeUpdate(sql,
-                Date.valueOf(r.getRentedFrom()),
                 Date.valueOf(r.getRentedTo()),
-                r.getDailyPrice(),
-                r.getSecurityDeposit(),
+                r.getDailyPrice().doubleValue(),
+                r.getSecurityDeposit().doubleValue(),
                 r.getStatus(),
                 r.getRentalId());
     }
@@ -54,8 +54,8 @@ public class RentalDAOImpl implements RentalDAO {
                     rs.getLong("equipment_id"),
                     rs.getDate("rented_from").toLocalDate(),
                     rs.getDate("rented_to").toLocalDate(),
-                    rs.getBigDecimal("daily_price"),
-                    rs.getBigDecimal("security_deposit"),
+                    BigDecimal.valueOf(rs.getDouble("daily_price")),
+                    BigDecimal.valueOf(rs.getDouble("security_deposit")),
                     rs.getLong("reservation_id"),
                     rs.getString("status"),
                     rs.getTimestamp("created_at")
@@ -76,8 +76,8 @@ public class RentalDAOImpl implements RentalDAO {
                     rs.getLong("equipment_id"),
                     rs.getDate("rented_from").toLocalDate(),
                     rs.getDate("rented_to").toLocalDate(),
-                    rs.getBigDecimal("daily_price"),
-                    rs.getBigDecimal("security_deposit"),
+                    BigDecimal.valueOf(rs.getDouble("daily_price")),
+                    BigDecimal.valueOf(rs.getDouble("security_deposit")),
                     rs.getLong("reservation_id"),
                     rs.getString("status"),
                     rs.getTimestamp("created_at")
