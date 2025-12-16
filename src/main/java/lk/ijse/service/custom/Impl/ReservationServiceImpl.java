@@ -13,48 +13,81 @@ import lk.ijse.service.custom.ReservationService;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.time.LocalDate;
 
 public class ReservationServiceImpl implements ReservationService {
 
     private final ReservationDAO reservationDAO =
-            (ReservationDAO) DAOFactory.getInstance().getDAO(DAOFactory.DAOTypes.RESERVATION);
+            (ReservationDAO) DAOFactory.getInstance()
+                    .getDAO(DAOFactory.DAOTypes.RESERVATION);
 
     private final RentalService rentalService =
-            (RentalService) ServiceFactory.getInstance().getService(ServiceFactory.ServiceType.RENTAL);
+            (RentalService) ServiceFactory.getInstance()
+                    .getService(ServiceFactory.ServiceType.RENTAL);
 
     private final ConfigService configService =
-            (ConfigService) ServiceFactory.getInstance().getService(ServiceFactory.ServiceType.CONFIG);
+            (ConfigService) ServiceFactory.getInstance()
+                    .getService(ServiceFactory.ServiceType.CONFIG);
 
-    // --- CRUD Operations ---
+    /* ===================== CRUD ===================== */
+
     @Override
     public boolean saveReservation(ReservationDTO dto) throws Exception {
-        return reservationDAO.save(new Reservation(
+
+        // ---- Date validation ----
+        if (dto.getReservedFrom() == null || dto.getReservedTo() == null)
+            throw new IllegalArgumentException("Reservation dates cannot be null");
+
+        if (dto.getReservedFrom().isAfter(dto.getReservedTo()))
+            throw new IllegalArgumentException("Invalid reservation period");
+
+        // ---- Price validation ----
+        if (dto.getTotalPrice() == null || dto.getTotalPrice().compareTo(BigDecimal.ZERO) <= 0)
+            throw new IllegalArgumentException("Invalid total price");
+
+        // ---- Availability check ----
+        if (!isEquipmentAvailable(
+                dto.getEquipmentId(),
+                dto.getReservedFrom(),
+                dto.getReservedTo()
+        )) {
+            throw new IllegalStateException("Equipment not available");
+        }
+
+        Reservation reservation = new Reservation(
                 0,
                 dto.getCustomerId(),
                 dto.getEquipmentId(),
                 Date.valueOf(dto.getReservedFrom()),
                 Date.valueOf(dto.getReservedTo()),
                 dto.getTotalPrice().doubleValue(),
-                dto.getStatus(),
+                "Pending",          // BUSINESS RULE
                 null
-        ));
+        );
+
+        return reservationDAO.save(reservation);
     }
 
     @Override
     public boolean updateReservation(ReservationDTO dto) throws Exception {
-        return reservationDAO.update(new Reservation(
-                dto.getReservationId(),
-                0,
-                0,
-                null,
-                Date.valueOf(dto.getReservedTo()),
-                dto.getTotalPrice().doubleValue(),
-                dto.getStatus(),
-                null
-        ));
+
+        Reservation existing = reservationDAO.find(dto.getReservationId());
+        if (existing == null) return false;
+
+        // Cancelled reservations cannot be modified
+        if ("Cancelled".equals(existing.getStatus())) return false;
+
+        // Status transition validation
+        if (!isValidStatusTransition(existing.getStatus(), dto.getStatus()))
+            return false;
+
+        existing.setReservedTo(Date.valueOf(dto.getReservedTo()));
+        existing.setTotalPrice(dto.getTotalPrice().doubleValue());
+        existing.setStatus(dto.getStatus());
+
+        return reservationDAO.update(existing);
     }
 
     @Override
@@ -66,6 +99,7 @@ public class ReservationServiceImpl implements ReservationService {
     public ReservationDTO searchReservation(long id) throws Exception {
         Reservation r = reservationDAO.find(id);
         if (r == null) return null;
+
         return new ReservationDTO(
                 r.getReservationId(),
                 r.getCustomerId(),
@@ -96,34 +130,49 @@ public class ReservationServiceImpl implements ReservationService {
         return list;
     }
 
-    // --- Business Logic ---
+    /* ================= BUSINESS LOGIC ================= */
+
+    @Override
     public boolean confirmReservation(long reservationId) throws Exception {
+
         ReservationDTO reservation = searchReservation(reservationId);
-        if (reservation == null || "Cancelled".equals(reservation.getStatus())) return false;
+        if (reservation == null) return false;
 
-        if (!isEquipmentAvailable(reservation.getEquipmentId(), reservation.getReservedFrom(), reservation.getReservedTo()))
+        if (!"Pending".equals(reservation.getStatus())) return false;
+
+        if (!isEquipmentAvailable(
+                reservation.getEquipmentId(),
+                reservation.getReservedFrom(),
+                reservation.getReservedTo()
+        )) return false;
+
+        ConfigDTO config = configService.getConfig();
+        if (reservation.getTotalPrice().compareTo(config.getMaxDeposit()) > 0)
             return false;
-
-        ConfigDTO cfg = configService.getConfig();
-        if (reservation.getTotalPrice().compareTo(cfg.getMaxDeposit()) > 0) return false;
 
         reservation.setStatus("Confirmed");
         return updateReservation(reservation);
     }
 
+    @Override
     public boolean cancelReservation(long reservationId) throws Exception {
+
         ReservationDTO reservation = searchReservation(reservationId);
         if (reservation == null) return false;
+
+        if ("Cancelled".equals(reservation.getStatus())) return false;
 
         reservation.setStatus("Cancelled");
         return updateReservation(reservation);
     }
 
+    @Override
     public boolean createRentalFromReservation(long reservationId) throws Exception {
-        ReservationDTO reservation = searchReservation(reservationId);
-        if (reservation == null || !"Confirmed".equals(reservation.getStatus())) return false;
 
-        BigDecimal rentalPrice = reservation.getTotalPrice(); // or calculate logic
+        ReservationDTO reservation = searchReservation(reservationId);
+        if (reservation == null) return false;
+
+        if (!"Confirmed".equals(reservation.getStatus())) return false;
 
         RentalDTO rental = new RentalDTO(
                 0,
@@ -131,29 +180,56 @@ public class ReservationServiceImpl implements ReservationService {
                 reservation.getEquipmentId(),
                 reservation.getReservedFrom(),
                 reservation.getReservedTo(),
-                rentalPrice,
+                reservation.getTotalPrice(),
                 reservation.getTotalPrice(),
                 reservationId,
                 "Open",
                 null
         );
 
-        return rentalService.saveRental(rental);
+        boolean rentalSaved = rentalService.saveRental(rental);
+        if (!rentalSaved) return false;
+
+        reservation.setStatus("Completed");
+        return updateReservation(reservation);
     }
 
-    // --- Helper Methods ---
-    private boolean isEquipmentAvailable(long equipmentId, LocalDate from, LocalDate to) throws Exception {
-        List<RentalDTO> rentals = rentalService.getAllRentals();
-        for (RentalDTO r : rentals) {
-            LocalDate rentedFrom = r.getRentedFrom();
-            LocalDate rentedTo = r.getRentedTo();
-            if (r.getEquipmentId() == equipmentId && "Open".equals(r.getStatus())
-                    && !from.isAfter(rentedTo) && !rentedFrom.isAfter(to)) {
+    /* ================= HELPERS ================= */
+
+    private boolean isEquipmentAvailable(
+            long equipmentId,
+            LocalDate from,
+            LocalDate to
+    ) throws Exception {
+
+        // Check rentals
+        for (RentalDTO r : rentalService.getAllRentals()) {
+            if (r.getEquipmentId() == equipmentId &&
+                    "Open".equals(r.getStatus()) &&
+                    !from.isAfter(r.getRentedTo()) &&
+                    !r.getRentedFrom().isAfter(to)) {
                 return false;
             }
         }
+
+        // Check reservations
+        for (ReservationDTO r : getAllReservations()) {
+            if (r.getEquipmentId() == equipmentId &&
+                    ("Pending".equals(r.getStatus()) || "Confirmed".equals(r.getStatus())) &&
+                    !from.isAfter(r.getReservedTo()) &&
+                    !r.getReservedFrom().isAfter(to)) {
+                return false;
+            }
+        }
+
         return true;
     }
 
-
+    private boolean isValidStatusTransition(String oldStatus, String newStatus) {
+        return switch (oldStatus) {
+            case "Pending" -> newStatus.equals("Confirmed") || newStatus.equals("Cancelled");
+            case "Confirmed" -> newStatus.equals("Completed") || newStatus.equals("Cancelled");
+            default -> false;
+        };
+    }
 }

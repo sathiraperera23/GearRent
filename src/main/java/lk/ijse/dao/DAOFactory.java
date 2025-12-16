@@ -62,6 +62,7 @@ public class DAOFactory {
         EQUIPMENT,
         CATEGORY,
         DAMAGE,
-        BRANCH
+        BRANCH,
+        USER,
     }
 }
