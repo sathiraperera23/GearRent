@@ -46,6 +46,9 @@ public class DAOFactory {
             case BRANCH:
                 return new BranchDAOImpl();
 
+            case USER:
+                return new UserDAOImpl();
+
 
             default:
                 throw new RuntimeException(

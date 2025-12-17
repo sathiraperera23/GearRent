@@ -1,10 +1,14 @@
 package lk.ijse.controller.auth;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import lk.ijse.controller.dashboard.DashboardController;
 import lk.ijse.dto.UserDTO;
 import lk.ijse.service.ServiceFactory;
 import lk.ijse.service.custom.UserService;
@@ -28,36 +32,63 @@ public class LoginController {
             String password = txtPassword.getText().trim();
 
             if (username.isEmpty() || password.isEmpty()) {
-                showAlert("Error", "Username and password cannot be empty.");
+                showAlert(
+                        Alert.AlertType.ERROR,
+                        "Validation Error",
+                        "Username and password cannot be empty."
+                );
                 return;
             }
 
-            UserDTO user = userService.login(username, password); // call backend login
+            UserDTO user = userService.login(username, password);
 
-            if (user != null) {
-                // Successful login
-                showAlert("Success", "Welcome " + user.getUsername() + "!");
-
-                // TODO: load the main dashboard
-                Stage stage = (Stage) txtUsername.getScene().getWindow();
-                // Replace with code to switch scene to dashboard
-                // e.g., DashboardUI.load(stage);
-            } else {
-                showAlert("Login Failed", "Invalid username or password.");
+            if (user == null) {
+                showAlert(
+                        Alert.AlertType.ERROR,
+                        "Login Failed",
+                        "Invalid username or password."
+                );
+                return;
             }
+
+            // ✅ Login success
+            showAlert(
+                    Alert.AlertType.INFORMATION,
+                    "Login Successful",
+                    "Welcome " + user.getUsername() + "!"
+            );
+
+            // ✅ Load dashboard
+            Stage stage = (Stage) txtUsername.getScene().getWindow();
+            loadDashboard(stage, user);
 
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert("Error", "An error occurred during login.");
+            showAlert(
+                    Alert.AlertType.ERROR,
+                    "System Error",
+                    "An error occurred during login."
+            );
         }
     }
 
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(
-                title.equals("Success")
-                        ? Alert.AlertType.INFORMATION
-                        : Alert.AlertType.ERROR
+    private void loadDashboard(Stage stage, UserDTO user) throws Exception {
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/view/dashboard.fxml")
         );
+
+        Parent root = loader.load();
+
+        DashboardController controller = loader.getController();
+        controller.setLoggedUser(user);
+
+        stage.setScene(new Scene(root));
+        stage.setTitle("GearRent | Dashboard");
+        stage.centerOnScreen();
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);

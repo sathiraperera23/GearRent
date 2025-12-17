@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="lk.ijse.controller.dashboard.DashboardController"
+            prefWidth="600" prefHeight="400">
+
+    <children>
+        <Label fx:id="lblWelcome"
+               layoutX="20"
+               layoutY="20"
+               text="Welcome"/>
+    </children>
+
+</AnchorPane>

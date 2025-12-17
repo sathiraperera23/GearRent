@@ -48,13 +48,15 @@ public class ReservationServiceImpl implements ReservationService {
             throw new IllegalArgumentException("Invalid total price");
 
         // ---- Availability check ----
-        if (!isEquipmentAvailable(
+        if (!reservationDAO.isEquipmentAvailable(
                 dto.getEquipmentId(),
-                dto.getReservedFrom(),
-                dto.getReservedTo()
+                Date.valueOf(dto.getReservedFrom()),
+                Date.valueOf(dto.getReservedTo()),
+                null
         )) {
             throw new IllegalStateException("Equipment not available");
         }
+
 
         Reservation reservation = new Reservation(
                 0,
@@ -74,21 +76,50 @@ public class ReservationServiceImpl implements ReservationService {
     public boolean updateReservation(ReservationDTO dto) throws Exception {
 
         Reservation existing = reservationDAO.find(dto.getReservationId());
-        if (existing == null) return false;
-
-        // Cancelled reservations cannot be modified
-        if ("Cancelled".equals(existing.getStatus())) return false;
-
-        // Status transition validation
-        if (!isValidStatusTransition(existing.getStatus(), dto.getStatus()))
+        if (existing == null) {
             return false;
+        }
 
+        // ❌ Cancelled reservations cannot be modified
+        if ("Cancelled".equals(existing.getStatus())) {
+            return false;
+        }
+
+        // ❌ Invalid status transition
+        if (!isValidStatusTransition(existing.getStatus(), dto.getStatus())) {
+            return false;
+        }
+
+        // ❌ Date validation
+        if (dto.getReservedFrom() == null || dto.getReservedTo() == null) {
+            throw new IllegalArgumentException("Reservation dates cannot be null");
+        }
+
+        if (dto.getReservedFrom().isAfter(dto.getReservedTo())) {
+            throw new IllegalArgumentException("Invalid reservation period");
+        }
+
+        // ❌ Availability check (exclude current reservation)
+        boolean available = reservationDAO.isEquipmentAvailable(
+                existing.getEquipmentId(),
+                Date.valueOf(dto.getReservedFrom()),
+                Date.valueOf(dto.getReservedTo()),
+                existing.getReservationId()
+        );
+
+        if (!available) {
+            throw new IllegalStateException("Equipment not available for the selected period");
+        }
+
+        // ✅ Apply updates
+        existing.setReservedFrom(Date.valueOf(dto.getReservedFrom()));
         existing.setReservedTo(Date.valueOf(dto.getReservedTo()));
         existing.setTotalPrice(dto.getTotalPrice().doubleValue());
         existing.setStatus(dto.getStatus());
 
         return reservationDAO.update(existing);
     }
+
 
     @Override
     public boolean deleteReservation(long id) throws Exception {

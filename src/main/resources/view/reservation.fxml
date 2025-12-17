@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="lk.ijse.controller.reservation.ReservationController">
+
+    <top>
+        <Label text="Reservations"
+               style="-fx-font-size: 24px; -fx-padding: 10;" />
+    </top>
+
+    <center>
+        <TableView fx:id="tblReservation">
+            <columns>
+                <TableColumn fx:id="colId" text="ID"/>
+                <TableColumn fx:id="colCustomer" text="Customer ID"/>
+                <TableColumn fx:id="colEquipment" text="Equipment ID"/>
+                <TableColumn fx:id="colFrom" text="Start Date"/>
+                <TableColumn fx:id="colTo" text="End Date"/>
+                <TableColumn fx:id="colTotal" text="Total Price"/>
+                <TableColumn fx:id="colStatus" text="Status"/>
+            </columns>
+        </TableView>
+    </center>
+
+    <bottom>
+        <HBox spacing="10" style="-fx-padding: 10;">
+            <Button text="Add" onAction="#addReservation"/>
+            <Button text="Edit" onAction="#updateReservation"/>
+            <Button text="Delete" onAction="#deleteReservation"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>
