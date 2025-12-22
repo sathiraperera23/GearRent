@@ -4,8 +4,8 @@ import lk.ijse.dao.CrudUtil;
 import lk.ijse.dao.custom.RentalDAO;
 import lk.ijse.entity.Rental;
 
-import java.sql.ResultSet;
 import java.sql.Date;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.math.BigDecimal;
@@ -48,18 +48,7 @@ public class RentalDAOImpl implements RentalDAO {
         String sql = "SELECT * FROM rentals WHERE rental_id=?";
         ResultSet rs = CrudUtil.executeQuery(sql, id);
         if (rs.next()) {
-            return new Rental(
-                    rs.getLong("rental_id"),
-                    rs.getLong("customer_id"),
-                    rs.getLong("equipment_id"),
-                    rs.getDate("rented_from").toLocalDate(),
-                    rs.getDate("rented_to").toLocalDate(),
-                    BigDecimal.valueOf(rs.getDouble("daily_price")),
-                    BigDecimal.valueOf(rs.getDouble("security_deposit")),
-                    rs.getLong("reservation_id"),
-                    rs.getString("status"),
-                    rs.getTimestamp("created_at")
-            );
+            return mapRow(rs);
         }
         return null;
     }
@@ -70,19 +59,42 @@ public class RentalDAOImpl implements RentalDAO {
         ResultSet rs = CrudUtil.executeQuery(sql);
         List<Rental> list = new ArrayList<>();
         while (rs.next()) {
-            list.add(new Rental(
-                    rs.getLong("rental_id"),
-                    rs.getLong("customer_id"),
-                    rs.getLong("equipment_id"),
-                    rs.getDate("rented_from").toLocalDate(),
-                    rs.getDate("rented_to").toLocalDate(),
-                    BigDecimal.valueOf(rs.getDouble("daily_price")),
-                    BigDecimal.valueOf(rs.getDouble("security_deposit")),
-                    rs.getLong("reservation_id"),
-                    rs.getString("status"),
-                    rs.getTimestamp("created_at")
-            ));
+            list.add(mapRow(rs));
         }
         return list;
+    }
+
+    @Override
+    public boolean isEquipmentAvailable(long equipmentId, Date from, Date to) throws Exception {
+        // Check both rentals and reservations in a single query
+        String sql = """
+        SELECT COUNT(*) FROM (
+            SELECT rented_from AS start_date, rented_to AS end_date FROM rentals 
+                WHERE equipment_id=? AND status='Open'
+            UNION ALL
+            SELECT reserved_from AS start_date, reserved_to AS end_date FROM reservations
+                WHERE equipment_id=? AND status IN ('Pending','Confirmed')
+        ) AS periods
+        WHERE NOT (? > end_date OR ? < start_date)
+        """;
+
+        ResultSet rs = CrudUtil.executeQuery(sql, equipmentId, equipmentId, from, to);
+        rs.next();
+        return rs.getInt(1) == 0;
+    }
+
+    private Rental mapRow(ResultSet rs) throws Exception {
+        return new Rental(
+                rs.getLong("rental_id"),
+                rs.getLong("customer_id"),
+                rs.getLong("equipment_id"),
+                rs.getDate("rented_from").toLocalDate(),
+                rs.getDate("rented_to").toLocalDate(),
+                BigDecimal.valueOf(rs.getDouble("daily_price")),
+                BigDecimal.valueOf(rs.getDouble("security_deposit")),
+                rs.getLong("reservation_id"),
+                rs.getString("status"),
+                rs.getTimestamp("created_at")
+        );
     }
 }

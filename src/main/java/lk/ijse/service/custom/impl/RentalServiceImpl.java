@@ -9,10 +9,11 @@ import lk.ijse.service.ServiceFactory;
 import lk.ijse.service.custom.RentalService;
 import lk.ijse.service.custom.ReservationService;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.math.BigDecimal;
 
 public class RentalServiceImpl implements RentalService {
 
@@ -23,40 +24,24 @@ public class RentalServiceImpl implements RentalService {
             (ReservationService) ServiceFactory.getInstance()
                     .getService(ServiceFactory.ServiceType.RESERVATION);
 
-    // ===================== CRUD + BUSINESS LOGIC =====================
+    /* ===================== CRUD ===================== */
 
     @Override
     public boolean saveRental(RentalDTO dto) throws Exception {
 
-        // 1. Validate dates
-        if (dto.getRentedFrom() == null || dto.getRentedTo() == null) {
-            throw new IllegalArgumentException("Rental dates cannot be null");
-        }
+        validateRental(dto);
 
-        if (dto.getRentedFrom().isAfter(dto.getRentedTo())) {
-            throw new IllegalArgumentException("Invalid rental date range");
-        }
-
-        // 2. Validate prices
-        if (dto.getDailyPrice() == null || dto.getDailyPrice().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Invalid daily price");
-        }
-
-        if (dto.getSecurityDeposit() == null || dto.getSecurityDeposit().compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Invalid security deposit");
-        }
-
-        // 3. Check equipment availability
-        if (!isEquipmentAvailable(
+        // Check equipment availability
+        if (!rentalDAO.isEquipmentAvailable(
                 dto.getEquipmentId(),
-                dto.getRentedFrom(),
-                dto.getRentedTo())) {
-            return false;
+                Date.valueOf(dto.getRentedFrom()),
+                Date.valueOf(dto.getRentedTo())
+        )) {
+            throw new IllegalStateException("Equipment not available");
         }
 
-        // 4. Save rental
         Rental rental = new Rental(
-                0, // auto-generated
+                0,
                 dto.getCustomerId(),
                 dto.getEquipmentId(),
                 dto.getRentedFrom(),
@@ -77,27 +62,28 @@ public class RentalServiceImpl implements RentalService {
         Rental existing = rentalDAO.find(dto.getRentalId());
         if (existing == null) return false;
 
-        // Prevent editing closed rentals
+        // Closed rentals cannot be changed
         if ("Closed".equals(existing.getStatus())) return false;
 
-        // Validate date changes
-        if (dto.getRentedFrom().isAfter(dto.getRentedTo())) return false;
+        validateRental(dto);
 
-        // Check availability only if dates changed
-        if (!existing.getRentedTo().equals(dto.getRentedTo())) {
-            if (!isEquipmentAvailable(
-                    existing.getEquipmentId(),
-                    existing.getRentedFrom(),
-                    dto.getRentedTo())) {
-                return false;
+        // Re-check availability ONLY if dates changed
+        if (!existing.getRentedFrom().equals(dto.getRentedFrom()) ||
+                !existing.getRentedTo().equals(dto.getRentedTo())) {
+
+            if (!rentalDAO.isEquipmentAvailable(
+                    dto.getEquipmentId(),
+                    Date.valueOf(dto.getRentedFrom()),
+                    Date.valueOf(dto.getRentedTo())
+            )) {
+                throw new IllegalStateException("Equipment not available for new dates");
             }
         }
 
-        // Validate status transition
-        if (!isValidStatusChange(existing.getStatus(), dto.getStatus())) {
+        if (!isValidStatusChange(existing.getStatus(), dto.getStatus()))
             return false;
-        }
 
+        existing.setRentedFrom(dto.getRentedFrom());
         existing.setRentedTo(dto.getRentedTo());
         existing.setDailyPrice(dto.getDailyPrice());
         existing.setSecurityDeposit(dto.getSecurityDeposit());
@@ -105,6 +91,7 @@ public class RentalServiceImpl implements RentalService {
 
         return rentalDAO.update(existing);
     }
+
 
     @Override
     public boolean deleteRental(long id) throws Exception {
@@ -115,7 +102,50 @@ public class RentalServiceImpl implements RentalService {
     public RentalDTO searchRental(long id) throws Exception {
         Rental r = rentalDAO.find(id);
         if (r == null) return null;
+        return mapToDTO(r);
+    }
 
+    @Override
+    public List<RentalDTO> getAllRentals() throws Exception {
+        List<RentalDTO> list = new ArrayList<>();
+        for (Rental r : rentalDAO.findAll()) {
+            list.add(mapToDTO(r));
+        }
+        return list;
+    }
+
+    /* ===================== RESERVATION → RENTAL ===================== */
+
+    @Override
+    public boolean createRentalFromReservation(long reservationId) throws Exception {
+        ReservationDTO reservation = reservationService.searchReservation(reservationId);
+        if (reservation == null || !"Confirmed".equals(reservation.getStatus())) return false;
+
+        RentalDTO rental = new RentalDTO(
+                0,
+                reservation.getCustomerId(),
+                reservation.getEquipmentId(),
+                reservation.getReservedFrom(),
+                reservation.getReservedTo(),
+                reservation.getTotalPrice(), // total price already calculated in reservation
+                reservation.getTotalPrice(),
+                reservation.getReservationId(),
+                "Open",
+                null
+        );
+
+        boolean saved = saveRental(rental);
+        if (!saved) return false;
+
+        reservation.setStatus("Completed");
+        reservationService.updateReservation(reservation);
+
+        return true;
+    }
+
+    /* ===================== HELPERS ===================== */
+
+    private RentalDTO mapToDTO(Rental r) {
         return new RentalDTO(
                 r.getRentalId(),
                 r.getCustomerId(),
@@ -130,85 +160,27 @@ public class RentalServiceImpl implements RentalService {
         );
     }
 
-    @Override
-    public List<RentalDTO> getAllRentals() throws Exception {
-        List<RentalDTO> list = new ArrayList<>();
-        for (Rental r : rentalDAO.findAll()) {
-            list.add(new RentalDTO(
-                    r.getRentalId(),
-                    r.getCustomerId(),
-                    r.getEquipmentId(),
-                    r.getRentedFrom(),
-                    r.getRentedTo(),
-                    r.getDailyPrice(),
-                    r.getSecurityDeposit(),
-                    r.getReservationId(),
-                    r.getStatus(),
-                    r.getCreatedAt()
-            ));
-        }
-        return list;
+    private void validateRental(RentalDTO dto) {
+        if (dto.getRentedFrom() == null || dto.getRentedTo() == null)
+            throw new IllegalArgumentException("Rental dates cannot be null");
+
+        if (dto.getRentedFrom().isAfter(dto.getRentedTo()))
+            throw new IllegalArgumentException("Invalid rental period");
+
+        if (dto.getDailyPrice() == null || dto.getDailyPrice().compareTo(BigDecimal.ZERO) <= 0)
+            throw new IllegalArgumentException("Invalid daily price");
+
+        if (dto.getSecurityDeposit() == null || dto.getSecurityDeposit().compareTo(BigDecimal.ZERO) < 0)
+            throw new IllegalArgumentException("Invalid security deposit");
     }
 
-    // ===================== BUSINESS RULES =====================
-
-    private boolean isEquipmentAvailable(long equipmentId, LocalDate from, LocalDate to) throws Exception {
-
-        // Check active rentals
-        for (RentalDTO r : getAllRentals()) {
-            if (r.getEquipmentId() == equipmentId &&
-                    "Open".equals(r.getStatus()) &&
-                    !from.isAfter(r.getRentedTo()) &&
-                    !r.getRentedFrom().isAfter(to)) {
-                return false;
-            }
-        }
-
-        // Check active reservations
-        for (ReservationDTO r : reservationService.getAllReservations()) {
-            if (r.getEquipmentId() == equipmentId &&
-                    ("Pending".equals(r.getStatus()) || "Confirmed".equals(r.getStatus())) &&
-                    !from.isAfter(r.getReservedTo()) &&
-                    !r.getReservedFrom().isAfter(to)) {
-                return false;
-            }
-        }
-
-        return true;
+    private BigDecimal calculateTotalPrice(RentalDTO dto) {
+        long days = ChronoUnit.DAYS.between(dto.getRentedFrom(), dto.getRentedTo()) + 1;
+        return dto.getDailyPrice().multiply(BigDecimal.valueOf(days)).add(dto.getSecurityDeposit());
     }
 
     private boolean isValidStatusChange(String oldStatus, String newStatus) {
         if (oldStatus.equals(newStatus)) return true;
         return "Open".equals(oldStatus) && "Closed".equals(newStatus);
-    }
-
-    // ===================== RESERVATION → RENTAL =====================
-
-    public boolean createRentalFromReservation(long reservationId) throws Exception {
-
-        ReservationDTO reservation = reservationService.searchReservation(reservationId);
-        if (reservation == null || !"Confirmed".equals(reservation.getStatus())) return false;
-
-        RentalDTO rental = new RentalDTO(
-                0,
-                reservation.getCustomerId(),
-                reservation.getEquipmentId(),
-                reservation.getReservedFrom(),
-                reservation.getReservedTo(),
-                reservation.getTotalPrice(),
-                reservation.getTotalPrice(),
-                reservation.getReservationId(),
-                "Open",
-                null
-        );
-
-        boolean saved = saveRental(rental);
-        if (!saved) return false;
-
-        // Mark reservation as completed
-        reservation.setStatus("Completed");
-        reservationService.updateReservation(reservation);
-
-        return true;
     }
 }

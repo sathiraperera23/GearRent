@@ -18,6 +18,8 @@ module lk.ijse {
     opens lk.ijse.controller.config to javafx.fxml;
     opens lk.ijse.controller.rental to javafx.fxml;
     opens lk.ijse.controller.reservation to javafx.fxml;
+    opens lk.ijse.controller.customer to javafx.fxml;
+
 
     exports lk.ijse;
 }

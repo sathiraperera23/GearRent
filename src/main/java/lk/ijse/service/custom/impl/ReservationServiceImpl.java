@@ -6,7 +6,6 @@ import lk.ijse.dto.ConfigDTO;
 import lk.ijse.dto.ReservationDTO;
 import lk.ijse.dto.RentalDTO;
 import lk.ijse.entity.Reservation;
-import lk.ijse.service.ServiceFactory;
 import lk.ijse.service.custom.ConfigService;
 import lk.ijse.service.custom.RentalService;
 import lk.ijse.service.custom.ReservationService;
@@ -23,31 +22,28 @@ public class ReservationServiceImpl implements ReservationService {
             (ReservationDAO) DAOFactory.getInstance()
                     .getDAO(DAOFactory.DAOTypes.RESERVATION);
 
-    private final RentalService rentalService =
-            (RentalService) ServiceFactory.getInstance()
-                    .getService(ServiceFactory.ServiceType.RENTAL);
+    // 🔥 injected later (NO ServiceFactory here)
+    private RentalService rentalService;
+    private ConfigService configService;
 
-    private final ConfigService configService =
-            (ConfigService) ServiceFactory.getInstance()
-                    .getService(ServiceFactory.ServiceType.CONFIG);
+    /* ===================== DEPENDENCY INJECTION ===================== */
+
+    public void setRentalService(RentalService rentalService) {
+        this.rentalService = rentalService;
+    }
+
+    public void setConfigService(ConfigService configService) {
+        this.configService = configService;
+    }
 
     /* ===================== CRUD ===================== */
 
     @Override
     public boolean saveReservation(ReservationDTO dto) throws Exception {
 
-        // ---- Date validation ----
-        if (dto.getReservedFrom() == null || dto.getReservedTo() == null)
-            throw new IllegalArgumentException("Reservation dates cannot be null");
+        validateDates(dto.getReservedFrom(), dto.getReservedTo());
+        validatePrice(dto.getTotalPrice());
 
-        if (dto.getReservedFrom().isAfter(dto.getReservedTo()))
-            throw new IllegalArgumentException("Invalid reservation period");
-
-        // ---- Price validation ----
-        if (dto.getTotalPrice() == null || dto.getTotalPrice().compareTo(BigDecimal.ZERO) <= 0)
-            throw new IllegalArgumentException("Invalid total price");
-
-        // ---- Availability check ----
         if (!reservationDAO.isEquipmentAvailable(
                 dto.getEquipmentId(),
                 Date.valueOf(dto.getReservedFrom()),
@@ -57,7 +53,6 @@ public class ReservationServiceImpl implements ReservationService {
             throw new IllegalStateException("Equipment not available");
         }
 
-
         Reservation reservation = new Reservation(
                 0,
                 dto.getCustomerId(),
@@ -65,7 +60,7 @@ public class ReservationServiceImpl implements ReservationService {
                 Date.valueOf(dto.getReservedFrom()),
                 Date.valueOf(dto.getReservedTo()),
                 dto.getTotalPrice().doubleValue(),
-                "Pending",          // BUSINESS RULE
+                "Pending",
                 null
         );
 
@@ -76,30 +71,15 @@ public class ReservationServiceImpl implements ReservationService {
     public boolean updateReservation(ReservationDTO dto) throws Exception {
 
         Reservation existing = reservationDAO.find(dto.getReservationId());
-        if (existing == null) {
+        if (existing == null) return false;
+
+        if ("Cancelled".equals(existing.getStatus())) return false;
+
+        if (!isValidStatusTransition(existing.getStatus(), dto.getStatus()))
             return false;
-        }
 
-        // ❌ Cancelled reservations cannot be modified
-        if ("Cancelled".equals(existing.getStatus())) {
-            return false;
-        }
+        validateDates(dto.getReservedFrom(), dto.getReservedTo());
 
-        // ❌ Invalid status transition
-        if (!isValidStatusTransition(existing.getStatus(), dto.getStatus())) {
-            return false;
-        }
-
-        // ❌ Date validation
-        if (dto.getReservedFrom() == null || dto.getReservedTo() == null) {
-            throw new IllegalArgumentException("Reservation dates cannot be null");
-        }
-
-        if (dto.getReservedFrom().isAfter(dto.getReservedTo())) {
-            throw new IllegalArgumentException("Invalid reservation period");
-        }
-
-        // ❌ Availability check (exclude current reservation)
         boolean available = reservationDAO.isEquipmentAvailable(
                 existing.getEquipmentId(),
                 Date.valueOf(dto.getReservedFrom()),
@@ -107,11 +87,9 @@ public class ReservationServiceImpl implements ReservationService {
                 existing.getReservationId()
         );
 
-        if (!available) {
-            throw new IllegalStateException("Equipment not available for the selected period");
-        }
+        if (!available)
+            throw new IllegalStateException("Equipment not available");
 
-        // ✅ Apply updates
         existing.setReservedFrom(Date.valueOf(dto.getReservedFrom()));
         existing.setReservedTo(Date.valueOf(dto.getReservedTo()));
         existing.setTotalPrice(dto.getTotalPrice().doubleValue());
@@ -120,7 +98,6 @@ public class ReservationServiceImpl implements ReservationService {
         return reservationDAO.update(existing);
     }
 
-
     @Override
     public boolean deleteReservation(long id) throws Exception {
         return reservationDAO.delete(id);
@@ -128,35 +105,19 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public ReservationDTO searchReservation(long id) throws Exception {
+
         Reservation r = reservationDAO.find(id);
         if (r == null) return null;
 
-        return new ReservationDTO(
-                r.getReservationId(),
-                r.getCustomerId(),
-                r.getEquipmentId(),
-                r.getReservedFrom().toLocalDate(),
-                r.getReservedTo().toLocalDate(),
-                BigDecimal.valueOf(r.getTotalPrice()),
-                r.getStatus(),
-                r.getCreatedAt()
-        );
+        return mapToDTO(r);
     }
 
     @Override
     public List<ReservationDTO> getAllReservations() throws Exception {
+
         List<ReservationDTO> list = new ArrayList<>();
         for (Reservation r : reservationDAO.findAll()) {
-            list.add(new ReservationDTO(
-                    r.getReservationId(),
-                    r.getCustomerId(),
-                    r.getEquipmentId(),
-                    r.getReservedFrom().toLocalDate(),
-                    r.getReservedTo().toLocalDate(),
-                    BigDecimal.valueOf(r.getTotalPrice()),
-                    r.getStatus(),
-                    r.getCreatedAt()
-            ));
+            list.add(mapToDTO(r));
         }
         return list;
     }
@@ -171,12 +132,6 @@ public class ReservationServiceImpl implements ReservationService {
 
         if (!"Pending".equals(reservation.getStatus())) return false;
 
-        if (!isEquipmentAvailable(
-                reservation.getEquipmentId(),
-                reservation.getReservedFrom(),
-                reservation.getReservedTo()
-        )) return false;
-
         ConfigDTO config = configService.getConfig();
         if (reservation.getTotalPrice().compareTo(config.getMaxDeposit()) > 0)
             return false;
@@ -190,8 +145,6 @@ public class ReservationServiceImpl implements ReservationService {
 
         ReservationDTO reservation = searchReservation(reservationId);
         if (reservation == null) return false;
-
-        if ("Cancelled".equals(reservation.getStatus())) return false;
 
         reservation.setStatus("Cancelled");
         return updateReservation(reservation);
@@ -218,60 +171,49 @@ public class ReservationServiceImpl implements ReservationService {
                 null
         );
 
-        boolean rentalSaved = rentalService.saveRental(rental);
-        if (!rentalSaved) return false;
+        if (!rentalService.saveRental(rental)) return false;
 
         reservation.setStatus("Completed");
         return updateReservation(reservation);
     }
 
-    /* ================= HELPERS ================= */
+    /* ===================== HELPERS ===================== */
 
-    private boolean isEquipmentAvailable(
-            long equipmentId,
-            LocalDate from,
-            LocalDate to
-    ) throws Exception {
+    private ReservationDTO mapToDTO(Reservation r) {
+        return new ReservationDTO(
+                r.getReservationId(),
+                r.getCustomerId(),
+                r.getEquipmentId(),
+                r.getReservedFrom().toLocalDate(),
+                r.getReservedTo().toLocalDate(),
+                BigDecimal.valueOf(r.getTotalPrice()),
+                r.getStatus(),
+                r.getCreatedAt()
+        );
+    }
 
-        // Check rentals
-        for (RentalDTO r : rentalService.getAllRentals()) {
-            if (r.getEquipmentId() == equipmentId &&
-                    "Open".equals(r.getStatus()) &&
-                    !from.isAfter(r.getRentedTo()) &&
-                    !r.getRentedFrom().isAfter(to)) {
-                return false;
-            }
-        }
+    private void validateDates(LocalDate from, LocalDate to) {
+        if (from == null || to == null)
+            throw new IllegalArgumentException("Dates cannot be null");
 
-        // Check reservations
-        for (ReservationDTO r : getAllReservations()) {
-            if (r.getEquipmentId() == equipmentId &&
-                    ("Pending".equals(r.getStatus()) || "Confirmed".equals(r.getStatus())) &&
-                    !from.isAfter(r.getReservedTo()) &&
-                    !r.getReservedFrom().isAfter(to)) {
-                return false;
-            }
-        }
+        if (from.isAfter(to))
+            throw new IllegalArgumentException("Invalid date range");
+    }
 
-        return true;
+    private void validatePrice(BigDecimal price) {
+        if (price == null || price.compareTo(BigDecimal.ZERO) <= 0)
+            throw new IllegalArgumentException("Invalid price");
     }
 
     private boolean isValidStatusTransition(String oldStatus, String newStatus) {
 
-        if (oldStatus == null || newStatus == null) {
-            return false;
-        }
-
         switch (oldStatus) {
             case "Pending":
                 return "Confirmed".equals(newStatus) || "Cancelled".equals(newStatus);
-
             case "Confirmed":
                 return "Completed".equals(newStatus) || "Cancelled".equals(newStatus);
-
             default:
                 return false;
         }
     }
-
 }

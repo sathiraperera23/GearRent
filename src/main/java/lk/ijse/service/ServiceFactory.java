@@ -1,5 +1,6 @@
 package lk.ijse.service;
 
+import lk.ijse.service.custom.ReservationService;
 import lk.ijse.service.custom.impl.*;
 
 public class ServiceFactory {
@@ -8,7 +9,7 @@ public class ServiceFactory {
 
     private ServiceFactory() {
     }
-
+ReservationService reservationService = new ReservationServiceImpl();
     public static ServiceFactory getInstance() {
         if (instance == null) {
             instance = new ServiceFactory();
@@ -41,7 +42,11 @@ public class ServiceFactory {
                 return new RentalServiceImpl();
 
             case RESERVATION:
-                return new ReservationServiceImpl();
+                if (reservationService == null) {
+                    reservationService = new ReservationServiceImpl();
+                }
+                return reservationService;
+
 
             case CONFIG:
                 return new ConfigServiceImpl();

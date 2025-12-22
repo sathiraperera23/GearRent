@@ -1,169 +1,194 @@
 package lk.ijse.controller.rental;
 
+import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
 import lk.ijse.dto.RentalDTO;
 import lk.ijse.service.ServiceFactory;
 import lk.ijse.service.custom.RentalService;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Scanner;
 
 public class RentalController {
+
+    /* ===================== FORM ===================== */
+
+    @FXML private TextField txtRentalId;
+    @FXML private TextField txtCustomerId;
+    @FXML private TextField txtEquipmentId;
+    @FXML private TextField txtReservationId;
+    @FXML private TextField txtDailyPrice;
+    @FXML private TextField txtDeposit;
+    @FXML private ComboBox<String> cmbStatus;
+    @FXML private DatePicker dpFrom;
+    @FXML private DatePicker dpTo;
+
+    /* ===================== TABLE ===================== */
+
+    @FXML private TableView<RentalDTO> tblRental;
+    @FXML private TableColumn<RentalDTO, Long> colId;
+    @FXML private TableColumn<RentalDTO, Long> colCustomer;
+    @FXML private TableColumn<RentalDTO, Long> colEquipment;
+    @FXML private TableColumn<RentalDTO, LocalDate> colFrom;
+    @FXML private TableColumn<RentalDTO, LocalDate> colTo;
+    @FXML private TableColumn<RentalDTO, BigDecimal> colDaily;
+    @FXML private TableColumn<RentalDTO, String> colStatus;
 
     private final RentalService rentalService =
             (RentalService) ServiceFactory.getInstance()
                     .getService(ServiceFactory.ServiceType.RENTAL);
 
-    private final Scanner scanner = new Scanner(System.in);
+    /* ===================== INIT ===================== */
 
-    /* ================= CREATE ================= */
+    @FXML
+    public void initialize() {
 
-    public void createRental() {
+        cmbStatus.getItems().addAll("Open", "Closed");
+
+        colId.setCellValueFactory(c -> new SimpleLongProperty(c.getValue().getRentalId()).asObject());
+        colCustomer.setCellValueFactory(c -> new SimpleLongProperty(c.getValue().getCustomerId()).asObject());
+        colEquipment.setCellValueFactory(c -> new SimpleLongProperty(c.getValue().getEquipmentId()).asObject());
+        colFrom.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().getRentedFrom()));
+        colTo.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().getRentedTo()));
+        colDaily.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().getDailyPrice()));
+        colStatus.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getStatus()));
+
+        tblRental.getSelectionModel().selectedItemProperty()
+                .addListener((obs, old, r) -> fillForm(r));
+
+        loadRentals();
+    }
+
+    /* ===================== LOAD ===================== */
+
+    private void loadRentals() {
         try {
-            System.out.print("Customer ID: ");
-            long customerId = Long.parseLong(scanner.nextLine());
-
-            System.out.print("Equipment ID: ");
-            long equipmentId = Long.parseLong(scanner.nextLine());
-
-            System.out.print("Rented From (YYYY-MM-DD): ");
-            LocalDate rentedFrom = LocalDate.parse(scanner.nextLine());
-
-            System.out.print("Rented To (YYYY-MM-DD): ");
-            LocalDate rentedTo = LocalDate.parse(scanner.nextLine());
-
-            System.out.print("Daily Price: ");
-            BigDecimal dailyPrice = new BigDecimal(scanner.nextLine());
-
-            System.out.print("Security Deposit: ");
-            BigDecimal securityDeposit = new BigDecimal(scanner.nextLine());
-
-            // Create rental DTO
-            RentalDTO dto = new RentalDTO();
-            dto.setCustomerId(customerId);
-            dto.setEquipmentId(equipmentId);
-            dto.setRentedFrom(rentedFrom);
-            dto.setRentedTo(rentedTo);
-            dto.setDailyPrice(dailyPrice);
-            dto.setSecurityDeposit(securityDeposit);
-            dto.setStatus("Open");
-
-            boolean success = rentalService.saveRental(dto);
-            System.out.println(success ? "Rental Added!" : "Failed to add rental. Equipment may not be available.");
-
+            tblRental.setItems(
+                    FXCollections.observableArrayList(
+                            rentalService.getAllRentals()
+                    )
+            );
         } catch (Exception e) {
-            e.printStackTrace();
+            showError(e.getMessage());
         }
     }
 
-    /* ========== CREATE RENTAL FROM RESERVATION ========== */
-    public void createRentalFromReservation() {
+    /* ===================== FORM FILL ===================== */
+
+    private void fillForm(RentalDTO r) {
+        if (r == null) return;
+
+        txtRentalId.setText(String.valueOf(r.getRentalId()));
+        txtCustomerId.setText(String.valueOf(r.getCustomerId()));
+        txtEquipmentId.setText(String.valueOf(r.getEquipmentId()));
+
+        txtReservationId.setText(
+                r.getReservationId() == 0 ? "" : String.valueOf(r.getReservationId())
+        );
+
+        dpFrom.setValue(r.getRentedFrom());
+        dpTo.setValue(r.getRentedTo());
+        txtDailyPrice.setText(r.getDailyPrice().toString());
+        txtDeposit.setText(r.getSecurityDeposit().toString());
+        cmbStatus.setValue(r.getStatus());
+    }
+
+    /* ===================== ADD ===================== */
+
+    @FXML
+    private void addRental() {
         try {
-            System.out.print("Enter Reservation ID to convert to Rental: ");
-            long reservationId = Long.parseLong(scanner.nextLine());
-
-            boolean success = rentalService.createRentalFromReservation(reservationId);
-            System.out.println(success ? "Rental created from reservation!" : "Failed. Check reservation status or availability.");
-
+            RentalDTO dto = buildDTO(0);
+            rentalService.saveRental(dto);
+            loadRentals();
+            clearForm();
         } catch (Exception e) {
-            e.printStackTrace();
+            showError(e.getMessage());
         }
     }
 
-    /* ================= READ ALL ================= */
+    /* ===================== UPDATE ===================== */
 
-    public void listRentals() {
+    @FXML
+    private void updateRental() {
         try {
-            List<RentalDTO> list = rentalService.getAllRentals();
-
-            System.out.println("\n--- RENTALS LIST ---");
-            list.forEach(r -> System.out.println(
-                    r.getRentalId() + " | Cust:" + r.getCustomerId() +
-                            " | Equip:" + r.getEquipmentId() +
-                            " | " + r.getRentedFrom() + " → " + r.getRentedTo() +
-                            " | Rs." + r.getDailyPrice() +
-                            " | Status: " + r.getStatus()
-            ));
-
+            long id = Long.parseLong(txtRentalId.getText());
+            RentalDTO dto = buildDTO(id);
+            rentalService.updateRental(dto);
+            loadRentals();
+            clearForm();
         } catch (Exception e) {
-            e.printStackTrace();
+            showError(e.getMessage());
         }
     }
 
-    /* ================= READ BY ID ================= */
+    /* ===================== DELETE ===================== */
 
-    public void searchRental() {
+    @FXML
+    private void deleteRental() {
         try {
-            System.out.print("Enter Rental ID: ");
-            long id = Long.parseLong(scanner.nextLine());
-
-            RentalDTO dto = rentalService.searchRental(id);
-            if (dto != null) {
-                System.out.println("\nRental Found:");
-                System.out.println("Rental ID      : " + dto.getRentalId());
-                System.out.println("Customer ID    : " + dto.getCustomerId());
-                System.out.println("Equipment ID   : " + dto.getEquipmentId());
-                System.out.println("Period         : " + dto.getRentedFrom() + " → " + dto.getRentedTo());
-                System.out.println("Daily Price    : " + dto.getDailyPrice());
-                System.out.println("Deposit        : " + dto.getSecurityDeposit());
-                System.out.println("Reservation ID : " + dto.getReservationId());
-                System.out.println("Status         : " + dto.getStatus());
-                System.out.println("Created At     : " + dto.getCreatedAt());
-            } else {
-                System.out.println("Rental not found.");
-            }
-
+            long id = Long.parseLong(txtRentalId.getText());
+            rentalService.deleteRental(id);
+            loadRentals();
+            clearForm();
         } catch (Exception e) {
-            e.printStackTrace();
+            showError(e.getMessage());
         }
     }
 
-    /* ================= UPDATE ================= */
-    public void updateRental() {
+    /* ===================== CREATE FROM RESERVATION ===================== */
+
+    @FXML
+    private void createFromReservation() {
         try {
-            System.out.print("Rental ID to update: ");
-            long rentalId = Long.parseLong(scanner.nextLine());
-
-            System.out.print("New Rented To (YYYY-MM-DD): ");
-            LocalDate rentedTo = LocalDate.parse(scanner.nextLine());
-
-            System.out.print("New Daily Price: ");
-            BigDecimal dailyPrice = new BigDecimal(scanner.nextLine());
-
-            System.out.print("New Security Deposit: ");
-            BigDecimal securityDeposit = new BigDecimal(scanner.nextLine());
-
-            System.out.print("Status (Open/Closed): ");
-            String status = scanner.nextLine();
-
-            RentalDTO dto = new RentalDTO();
-            dto.setRentalId(rentalId);
-            dto.setRentedTo(rentedTo);
-            dto.setDailyPrice(dailyPrice);
-            dto.setSecurityDeposit(securityDeposit);
-            dto.setStatus(status);
-
-            boolean success = rentalService.updateRental(dto);
-            System.out.println(success ? "Rental updated successfully!" : "Rental update failed.");
-
+            long reservationId = Long.parseLong(txtReservationId.getText());
+            rentalService.createRentalFromReservation(reservationId);
+            loadRentals();
+            clearForm();
         } catch (Exception e) {
-            e.printStackTrace();
+            showError(e.getMessage());
         }
     }
 
-    /* ================= DELETE ================= */
+    /* ===================== HELPERS ===================== */
 
-    public void deleteRental() {
-        try {
-            System.out.print("Enter Rental ID to delete: ");
-            long id = Long.parseLong(scanner.nextLine());
+    private RentalDTO buildDTO(long rentalId) {
 
-            boolean success = rentalService.deleteRental(id);
-            System.out.println(success ? "Rental deleted successfully!" : "Rental deletion failed.");
+        long reservationId = txtReservationId.getText().isEmpty()
+                ? 0
+                : Long.parseLong(txtReservationId.getText());
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        return new RentalDTO(
+                rentalId,
+                Long.parseLong(txtCustomerId.getText()),
+                Long.parseLong(txtEquipmentId.getText()),
+                dpFrom.getValue(),
+                dpTo.getValue(),
+                new BigDecimal(txtDailyPrice.getText()),
+                new BigDecimal(txtDeposit.getText()),
+                reservationId,
+                cmbStatus.getValue(),
+                null
+        );
+    }
+
+    private void clearForm() {
+        txtRentalId.clear();
+        txtCustomerId.clear();
+        txtEquipmentId.clear();
+        txtReservationId.clear();
+        txtDailyPrice.clear();
+        txtDeposit.clear();
+        dpFrom.setValue(null);
+        dpTo.setValue(null);
+        cmbStatus.setValue(null);
+    }
+
+    private void showError(String msg) {
+        new Alert(Alert.AlertType.ERROR, msg).showAndWait();
     }
 }

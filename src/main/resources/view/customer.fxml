@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="lk.ijse.controller.customer.CustomerController"
+            prefWidth="800" prefHeight="600">
+
+    <children>
+        <!-- Form Section -->
+        <VBox spacing="10" layoutX="20" layoutY="20">
+            <children>
+                <HBox spacing="10">
+                    <Label text="Customer ID:"/>
+                    <TextField fx:id="txtCustomerId" promptText="Auto-generated"/>
+                    <Button text="Search" fx:id="btnSearch" onAction="#searchCustomer"/>
+                </HBox>
+                <HBox spacing="10">
+                    <Label text="Name:"/>
+                    <TextField fx:id="txtName"/>
+                </HBox>
+                <HBox spacing="10">
+                    <Label text="NIC/Passport:"/>
+                    <TextField fx:id="txtNic"/>
+                </HBox>
+                <HBox spacing="10">
+                    <Label text="Contact:"/>
+                    <TextField fx:id="txtContact"/>
+                </HBox>
+                <HBox spacing="10">
+                    <Label text="Email:"/>
+                    <TextField fx:id="txtEmail"/>
+                </HBox>
+                <HBox spacing="10">
+                    <Label text="Address:"/>
+                    <TextField fx:id="txtAddress"/>
+                </HBox>
+                <HBox spacing="10">
+                    <Label text="Membership:"/>
+                    <ComboBox fx:id="cmbMembership" prefWidth="150"/>
+                </HBox>
+                <HBox spacing="10">
+                    <Button text="Add" fx:id="btnAdd" onAction="#addCustomer"/>
+                    <Button text="Update" fx:id="btnUpdate" onAction="#updateCustomer"/>
+                    <Button text="Delete" fx:id="btnDelete" onAction="#deleteCustomer"/>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- Table Section -->
+        <TableView fx:id="tblCustomers" layoutX="20" layoutY="300" prefWidth="760" prefHeight="250">
+            <columns>
+                <TableColumn fx:id="colId" text="ID" prefWidth="80"/>
+                <TableColumn fx:id="colName" text="Name" prefWidth="120"/>
+                <TableColumn fx:id="colNic" text="NIC/Passport" prefWidth="120"/>
+                <TableColumn fx:id="colContact" text="Contact" prefWidth="100"/>
+                <TableColumn fx:id="colEmail" text="Email" prefWidth="150"/>
+                <TableColumn fx:id="colAddress" text="Address" prefWidth="150"/>
+                <TableColumn fx:id="colMembership" text="Membership" prefWidth="100"/>
+            </columns>
+        </TableView>
+    </children>
+</AnchorPane>

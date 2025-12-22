@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<BorderPane xmlns="http://javafx.com/javafx/13"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="lk.ijse.controller.rental.RentalController">
+
+    <!-- ================= TOP ================= -->
+    <top>
+        <ToolBar>
+            <Button text="Add" onAction="#addRental"/>
+            <Button text="Update" onAction="#updateRental"/>
+            <Button text="Delete" onAction="#deleteRental"/>
+            <Separator/>
+            <Button text="Create From Reservation" onAction="#createFromReservation"/>
+        </ToolBar>
+    </top>
+
+    <!-- ================= CENTER ================= -->
+    <center>
+        <TableView fx:id="tblRental">
+            <columns>
+                <TableColumn fx:id="colId" text="ID"/>
+                <TableColumn fx:id="colCustomer" text="Customer"/>
+                <TableColumn fx:id="colEquipment" text="Equipment"/>
+                <TableColumn fx:id="colFrom" text="From"/>
+                <TableColumn fx:id="colTo" text="To"/>
+                <TableColumn fx:id="colDaily" text="Daily Price"/>
+                <TableColumn fx:id="colStatus" text="Status"/>
+            </columns>
+        </TableView>
+    </center>
+
+    <!-- ================= BOTTOM ================= -->
+    <bottom>
+        <GridPane hgap="10" vgap="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+
+            <Label text="Rental ID" GridPane.rowIndex="0"/>
+            <TextField fx:id="txtRentalId" editable="false" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+            <Label text="Customer ID" GridPane.rowIndex="1"/>
+            <TextField fx:id="txtCustomerId" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <Label text="Equipment ID" GridPane.rowIndex="2"/>
+            <TextField fx:id="txtEquipmentId" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+            <Label text="Reservation ID" GridPane.rowIndex="3"/>
+            <TextField fx:id="txtReservationId" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+            <Label text="From" GridPane.rowIndex="4"/>
+            <DatePicker fx:id="dpFrom" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+            <Label text="To" GridPane.rowIndex="5"/>
+            <DatePicker fx:id="dpTo" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+            <Label text="Daily Price" GridPane.rowIndex="6"/>
+            <TextField fx:id="txtDailyPrice" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+            <Label text="Deposit" GridPane.rowIndex="7"/>
+            <TextField fx:id="txtDeposit" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+            <Label text="Status" GridPane.rowIndex="8"/>
+            <ComboBox fx:id="cmbStatus" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+        </GridPane>
+    </bottom>
+
+</BorderPane>
