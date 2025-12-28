@@ -1,75 +1,140 @@
 package lk.ijse.dao.custom.impl;
 
-
-
-import lk.ijse.dao.CrudUtil;
 import lk.ijse.dao.custom.CustomerDAO;
+import lk.ijse.db.DBConnection;
 import lk.ijse.entity.Customer;
 
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.math.BigDecimal;
 
 public class CustomerDAOImpl implements CustomerDAO {
 
     @Override
     public boolean save(Customer customer) throws Exception {
-        return CrudUtil.executeUpdate(
-                "INSERT INTO Customers (name, nic_passport, contact_no, email, address, membership) VALUES (?,?,?,?,?,?)",
-                customer.getName(), customer.getNicPassport(), customer.getContactNo(),
-                customer.getEmail(), customer.getAddress(), customer.getMembership()
-        );
+        String sql = "INSERT INTO customers(name, nic_passport, contact_no, email, address, membership, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            pstm.setString(1, customer.getName());
+            pstm.setString(2, customer.getNicPassport());
+            pstm.setString(3, customer.getContactNo());
+            pstm.setString(4, customer.getEmail());
+            pstm.setString(5, customer.getAddress());
+            pstm.setString(6, customer.getMembership());
+            pstm.setTimestamp(7, customer.getCreatedAt());
+
+            int affectedRows = pstm.executeUpdate();
+            if (affectedRows > 0) {
+                ResultSet keys = pstm.getGeneratedKeys();
+                if (keys.next()) customer.setCustomerId(keys.getLong(1));
+                return true;
+            }
+            return false;
+        }
     }
 
     @Override
     public boolean update(Customer customer) throws Exception {
-        return CrudUtil.executeUpdate(
-                "UPDATE Customers SET name=?, nic_passport=?, contact_no=?, email=?, address=?, membership=? WHERE customer_id=?",
-                customer.getName(), customer.getNicPassport(), customer.getContactNo(),
-                customer.getEmail(), customer.getAddress(), customer.getMembership(),
-                customer.getCustomerId()
-        );
+        String sql = "UPDATE customers SET name=?, nic_passport=?, contact_no=?, email=?, address=?, membership=? WHERE customer_id=?";
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement pstm = conn.prepareStatement(sql)) {
+
+            pstm.setString(1, customer.getName());
+            pstm.setString(2, customer.getNicPassport());
+            pstm.setString(3, customer.getContactNo());
+            pstm.setString(4, customer.getEmail());
+            pstm.setString(5, customer.getAddress());
+            pstm.setString(6, customer.getMembership());
+            pstm.setLong(7, customer.getCustomerId());
+
+            return pstm.executeUpdate() > 0;
+        }
     }
 
     @Override
     public boolean delete(Long customerId) throws Exception {
-        return CrudUtil.executeUpdate("DELETE FROM Customers WHERE customer_id=?", customerId);
+        String sql = "DELETE FROM customers WHERE customer_id=?";
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement pstm = conn.prepareStatement(sql)) {
+            pstm.setLong(1, customerId);
+            return pstm.executeUpdate() > 0;
+        }
     }
 
     @Override
     public Customer find(Long customerId) throws Exception {
-        ResultSet rst = CrudUtil.executeQuery("SELECT * FROM Customers WHERE customer_id=?", customerId);
-        if (rst.next()) {
-            return new Customer(
-                    rst.getLong("customer_id"),
-                    rst.getString("name"),
-                    rst.getString("nic_passport"),
-                    rst.getString("contact_no"),
-                    rst.getString("email"),
-                    rst.getString("address"),
-                    rst.getString("membership"),
-                    rst.getTimestamp("created_at")
-            );
+        String sql = "SELECT * FROM customers WHERE customer_id=?";
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement pstm = conn.prepareStatement(sql)) {
+            pstm.setLong(1, customerId);
+            ResultSet rs = pstm.executeQuery();
+            if (rs.next()) return extractCustomer(rs);
+            return null;
         }
-        return null;
     }
 
     @Override
     public List<Customer> findAll() throws Exception {
-        ResultSet rst = CrudUtil.executeQuery("SELECT * FROM Customers");
+        String sql = "SELECT * FROM customers";
         List<Customer> list = new ArrayList<>();
-        while (rst.next()) {
-            list.add(new Customer(
-                    rst.getLong("customer_id"),
-                    rst.getString("name"),
-                    rst.getString("nic_passport"),
-                    rst.getString("contact_no"),
-                    rst.getString("email"),
-                    rst.getString("address"),
-                    rst.getString("membership"),
-                    rst.getTimestamp("created_at")
-            ));
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             Statement stm = conn.createStatement();
+             ResultSet rs = stm.executeQuery(sql)) {
+
+            while (rs.next()) list.add(extractCustomer(rs));
         }
         return list;
+    }
+
+    @Override
+    public Customer findByEmail(String email) throws Exception {
+        String sql = "SELECT * FROM customers WHERE email=?";
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement pstm = conn.prepareStatement(sql)) {
+            pstm.setString(1, email);
+            ResultSet rs = pstm.executeQuery();
+            if (rs.next()) return extractCustomer(rs);
+            return null;
+        }
+    }
+
+    @Override
+    public BigDecimal getTotalActiveDeposits(long customerId) throws Exception {
+        String sql = "SELECT SUM(security_deposit) as total FROM rentals WHERE customer_id=? AND status='Open'";
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement pstm = conn.prepareStatement(sql)) {
+            pstm.setLong(1, customerId);
+            ResultSet rs = pstm.executeQuery();
+            if (rs.next()) return rs.getBigDecimal("total") != null ? rs.getBigDecimal("total") : BigDecimal.ZERO;
+            return BigDecimal.ZERO;
+        }
+    }
+
+    @Override
+    public List<Customer> findCustomersWithActiveRentals() throws Exception {
+        String sql = "SELECT DISTINCT c.* FROM customers c JOIN rentals r ON c.customer_id=r.customer_id WHERE r.status='Open'";
+        List<Customer> list = new ArrayList<>();
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement pstm = conn.prepareStatement(sql);
+             ResultSet rs = pstm.executeQuery()) {
+
+            while (rs.next()) list.add(extractCustomer(rs));
+        }
+        return list;
+    }
+
+    private Customer extractCustomer(ResultSet rs) throws SQLException {
+        Customer c = new Customer();
+        c.setCustomerId(rs.getLong("customer_id"));
+        c.setName(rs.getString("name"));
+        c.setNicPassport(rs.getString("nic_passport"));
+        c.setContactNo(rs.getString("contact_no"));
+        c.setEmail(rs.getString("email"));
+        c.setAddress(rs.getString("address"));
+        c.setMembership(rs.getString("membership"));
+        c.setCreatedAt(rs.getTimestamp("created_at"));
+        return c;
     }
 }

@@ -9,7 +9,7 @@ public class Customer {
     private String contactNo;
     private String email;
     private String address;
-    private String membership;
+    private String membership; // Regular, Silver, Gold
     private Timestamp createdAt;
 
     public Customer() {}

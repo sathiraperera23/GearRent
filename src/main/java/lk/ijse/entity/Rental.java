@@ -1,124 +1,99 @@
 package lk.ijse.entity;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class Rental {
-
     private long rentalId;
     private long customerId;
     private long equipmentId;
     private LocalDate rentedFrom;
     private LocalDate rentedTo;
+    private LocalDate actualReturn;        // NEW
     private BigDecimal dailyPrice;
     private BigDecimal securityDeposit;
-    private Long reservationId;   // nullable
-    private String status;         // Open | Closed
-    private Timestamp createdAt;
+    private Long reservationId;
+    private String status;
+    private LocalDateTime createdAt;
+    private BigDecimal totalAmount;
+    private BigDecimal discount;
+    private BigDecimal finalAmount;
+    private String paymentStatus;
+    private BigDecimal damageCharge;       // NEW
 
-    public Rental() {
-    }
+    public Rental() {}
 
-    public Rental(
-            long rentalId,
-            long customerId,
-            long equipmentId,
-            LocalDate rentedFrom,
-            LocalDate rentedTo,
-            BigDecimal dailyPrice,
-            BigDecimal securityDeposit,
-            Long reservationId,
-            String status,
-            Timestamp createdAt
-    ) {
+    public Rental(long rentalId, long customerId, long equipmentId,
+                  LocalDate rentedFrom, LocalDate rentedTo, LocalDate actualReturn,
+                  BigDecimal dailyPrice, BigDecimal securityDeposit,
+                  Long reservationId, String status, LocalDateTime createdAt,
+                  BigDecimal totalAmount, BigDecimal discount, BigDecimal finalAmount,
+                  String paymentStatus, BigDecimal damageCharge) {
         this.rentalId = rentalId;
         this.customerId = customerId;
         this.equipmentId = equipmentId;
         this.rentedFrom = rentedFrom;
         this.rentedTo = rentedTo;
+        this.actualReturn = actualReturn;
         this.dailyPrice = dailyPrice;
         this.securityDeposit = securityDeposit;
         this.reservationId = reservationId;
         this.status = status;
         this.createdAt = createdAt;
+        this.totalAmount = totalAmount;
+        this.discount = discount;
+        this.finalAmount = finalAmount;
+        this.paymentStatus = paymentStatus;
+        this.damageCharge = damageCharge;
     }
 
-    // ---------- Getters & Setters ----------
+    // ==================== GETTERS & SETTERS ====================
+    public long getRentalId() { return rentalId; }
+    public void setRentalId(long rentalId) { this.rentalId = rentalId; }
 
-    public long getRentalId() {
-        return rentalId;
-    }
+    public long getCustomerId() { return customerId; }
+    public void setCustomerId(long customerId) { this.customerId = customerId; }
 
-    public void setRentalId(long rentalId) {
-        this.rentalId = rentalId;
-    }
+    public long getEquipmentId() { return equipmentId; }
+    public void setEquipmentId(long equipmentId) { this.equipmentId = equipmentId; }
 
-    public long getCustomerId() {
-        return customerId;
-    }
+    public LocalDate getRentedFrom() { return rentedFrom; }
+    public void setRentedFrom(LocalDate rentedFrom) { this.rentedFrom = rentedFrom; }
 
-    public void setCustomerId(long customerId) {
-        this.customerId = customerId;
-    }
+    public LocalDate getRentedTo() { return rentedTo; }
+    public void setRentedTo(LocalDate rentedTo) { this.rentedTo = rentedTo; }
 
-    public long getEquipmentId() {
-        return equipmentId;
-    }
+    public LocalDate getActualReturn() { return actualReturn; }
+    public void setActualReturn(LocalDate actualReturn) { this.actualReturn = actualReturn; }
 
-    public void setEquipmentId(long equipmentId) {
-        this.equipmentId = equipmentId;
-    }
+    public BigDecimal getDailyPrice() { return dailyPrice; }
+    public void setDailyPrice(BigDecimal dailyPrice) { this.dailyPrice = dailyPrice; }
 
-    public LocalDate getRentedFrom() {
-        return rentedFrom;
-    }
+    public BigDecimal getSecurityDeposit() { return securityDeposit; }
+    public void setSecurityDeposit(BigDecimal securityDeposit) { this.securityDeposit = securityDeposit; }
 
-    public void setRentedFrom(LocalDate rentedFrom) {
-        this.rentedFrom = rentedFrom;
-    }
+    public Long getReservationId() { return reservationId; }
+    public void setReservationId(Long reservationId) { this.reservationId = reservationId; }
 
-    public LocalDate getRentedTo() {
-        return rentedTo;
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
-    public void setRentedTo(LocalDate rentedTo) {
-        this.rentedTo = rentedTo;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public BigDecimal getDailyPrice() {
-        return dailyPrice;
-    }
+    public BigDecimal getTotalAmount() { return totalAmount; }
+    public void setTotalAmount(BigDecimal totalAmount) { this.totalAmount = totalAmount; }
 
-    public void setDailyPrice(BigDecimal dailyPrice) {
-        this.dailyPrice = dailyPrice;
-    }
+    public BigDecimal getDiscount() { return discount; }
+    public void setDiscount(BigDecimal discount) { this.discount = discount; }
 
-    public BigDecimal getSecurityDeposit() {
-        return securityDeposit;
-    }
+    public BigDecimal getFinalAmount() { return finalAmount; }
+    public void setFinalAmount(BigDecimal finalAmount) { this.finalAmount = finalAmount; }
 
-    public void setSecurityDeposit(BigDecimal securityDeposit) {
-        this.securityDeposit = securityDeposit;
-    }
+    public String getPaymentStatus() { return paymentStatus; }
+    public void setPaymentStatus(String paymentStatus) { this.paymentStatus = paymentStatus; }
 
-    public Long getReservationId() {
-        return reservationId;
-    }
-
-    public void setReservationId(Long reservationId) {
-        this.reservationId = reservationId;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
+    public BigDecimal getDamageCharge() { return damageCharge; }
+    public void setDamageCharge(BigDecimal damageCharge) { this.damageCharge = damageCharge; }
 }

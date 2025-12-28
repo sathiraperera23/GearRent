@@ -5,7 +5,7 @@ import lk.ijse.service.SuperService;
 
 import java.util.List;
 
-public interface RentalService extends SuperService {
+public interface RentalService extends SuperService{
 
     boolean saveRental(RentalDTO dto) throws Exception;
 
@@ -17,6 +17,5 @@ public interface RentalService extends SuperService {
 
     List<RentalDTO> getAllRentals() throws Exception;
 
-    // ✅ NO PARAMETER
     List<RentalDTO> getOverdueRentals() throws Exception;
 }

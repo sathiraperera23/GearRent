@@ -1,42 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
 <?import javafx.geometry.Insets?>
+
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="lk.ijse.controller.customer.CustomerController">
 
-    <!-- ===================== TOP ===================== -->
+    <!-- TOOLBAR -->
     <top>
         <ToolBar>
-            <Button text="Add" onAction="#btnAddOnAction"/>
+            <Button text="Save" onAction="#btnSaveOnAction"/>
             <Button text="Update" onAction="#btnUpdateOnAction"/>
             <Button text="Delete" onAction="#btnDeleteOnAction"/>
-            <Button text="Clear" onAction="#btnClearOnAction"/>
         </ToolBar>
     </top>
 
-    <!-- ===================== CENTER ===================== -->
+    <!-- TABLE -->
     <center>
         <TableView fx:id="tblCustomers">
             <columns>
-                <TableColumn fx:id="colId" text="ID" prefWidth="80"/>
-                <TableColumn fx:id="colName" text="Name" prefWidth="150"/>
-                <TableColumn fx:id="colNic" text="NIC / Passport" prefWidth="140"/>
-                <TableColumn fx:id="colContact" text="Contact" prefWidth="120"/>
-                <TableColumn fx:id="colEmail" text="Email" prefWidth="180"/>
-                <TableColumn fx:id="colMembership" text="Membership" prefWidth="120"/>
+                <TableColumn fx:id="colCustomerId" text="Customer ID" prefWidth="100"/>
+                <TableColumn fx:id="colName" text="Name" prefWidth="200"/>
+                <TableColumn fx:id="colMembership" text="Membership" prefWidth="100"/>
+                <TableColumn fx:id="colTotalDeposit" text="Active Deposits (LKR)" prefWidth="150"/>
             </columns>
         </TableView>
     </center>
 
-    <!-- ===================== BOTTOM ===================== -->
-    <!-- ===================== BOTTOM ===================== -->
+    <!-- FORM -->
     <bottom>
         <GridPane hgap="10" vgap="10">
-
             <padding>
                 <Insets top="15" right="15" bottom="15" left="15"/>
             </padding>
@@ -47,8 +41,8 @@
             <Label text="Name" GridPane.rowIndex="1"/>
             <TextField fx:id="txtName" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-            <Label text="NIC / Passport" GridPane.rowIndex="2"/>
-            <TextField fx:id="txtNic" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            <Label text="NIC/Passport" GridPane.rowIndex="2"/>
+            <TextField fx:id="txtNIC" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
             <Label text="Contact No" GridPane.rowIndex="3"/>
             <TextField fx:id="txtContact" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
@@ -60,10 +54,9 @@
             <TextField fx:id="txtAddress" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
 
             <Label text="Membership" GridPane.rowIndex="6"/>
-            <ComboBox fx:id="cmbMembership"
-                      GridPane.rowIndex="6"
-                      GridPane.columnIndex="1"/>
+            <ComboBox fx:id="cmbMembership" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+            <Label fx:id="lblActiveDeposits" text="Active Deposits: LKR 0" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
         </GridPane>
     </bottom>
-
 </BorderPane>

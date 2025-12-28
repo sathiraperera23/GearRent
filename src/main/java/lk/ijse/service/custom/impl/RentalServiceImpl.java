@@ -25,16 +25,22 @@ public class RentalServiceImpl implements RentalService {
                 d.getEquipmentId(),
                 d.getRentedFrom(),
                 d.getRentedTo(),
+                d.getActualReturn(),        // NEW
                 d.getDailyPrice(),
                 d.getSecurityDeposit(),
                 d.getReservationId(),
                 d.getStatus(),
-                null // created_at handled by DB
+                null,                       // created_at handled by DB
+                d.getTotalAmount(),
+                d.getDiscount(),
+                d.getFinalAmount(),
+                d.getPaymentStatus(),
+                d.getDamageCharge()         // NEW
         );
     }
 
     private RentalDTO toDTO(Rental r) {
-        return new RentalDTO(
+        RentalDTO dto = new RentalDTO(
                 r.getRentalId(),
                 r.getCustomerId(),
                 r.getEquipmentId(),
@@ -45,6 +51,16 @@ public class RentalServiceImpl implements RentalService {
                 r.getReservationId(),
                 r.getStatus()
         );
+
+        // Set new fields
+        dto.setActualReturn(r.getActualReturn());
+        dto.setDamageCharge(r.getDamageCharge());
+        dto.setTotalAmount(r.getTotalAmount());
+        dto.setDiscount(r.getDiscount());
+        dto.setFinalAmount(r.getFinalAmount());
+        dto.setPaymentStatus(r.getPaymentStatus());
+
+        return dto;
     }
 
     /* ===================== BUSINESS ===================== */
@@ -87,11 +103,9 @@ public class RentalServiceImpl implements RentalService {
         return list;
     }
 
-    // ✅ FIXED — NO ARGUMENT
     @Override
     public List<RentalDTO> getOverdueRentals() throws Exception {
         LocalDate today = LocalDate.now();
-
         List<RentalDTO> list = new ArrayList<>();
         for (Rental r : rentalDAO.findOverdueRentals(today)) {
             list.add(toDTO(r));
@@ -106,8 +120,6 @@ public class RentalServiceImpl implements RentalService {
             throw new IllegalArgumentException("Dates are required");
 
         if (to.isBefore(from))
-            throw new IllegalArgumentException(
-                    "Return date must be after rent date"
-            );
+            throw new IllegalArgumentException("Return date must be after rent date");
     }
 }
