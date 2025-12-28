@@ -153,17 +153,17 @@ public class ReservationController {
         }
     }
 
-    @FXML
-    private void createRental() {
-        try {
-            ReservationDTO r = getSelected();
-            reservationService.createRentalFromReservation(r.getReservationId());
-            loadReservations();
-            info("Rental created");
-        } catch (Exception e) {
-            error(e.getMessage());
-        }
-    }
+//    @FXML
+//    private void createRental() {
+//        try {
+//            ReservationDTO r = getSelected();
+//            reservationService.createRentalFromReservation(r.getReservationId());
+//            loadReservations();
+//            info("Rental created");
+//        } catch (Exception e) {
+//            error(e.getMessage());
+//        }
+//    }
 
     // ================= HELPERS =================
 

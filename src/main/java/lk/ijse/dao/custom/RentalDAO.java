@@ -3,8 +3,10 @@ package lk.ijse.dao.custom;
 import lk.ijse.dao.CrudDAO;
 import lk.ijse.entity.Rental;
 
-import java.sql.Date;
+import java.time.LocalDate;
+import java.util.List;
 
 public interface RentalDAO extends CrudDAO<Rental, Long> {
-    boolean isEquipmentAvailable(long equipmentId, Date from, Date to) throws Exception;
+
+    List<Rental> findOverdueRentals(LocalDate today) throws Exception;
 }

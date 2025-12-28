@@ -8,11 +8,15 @@ import java.util.List;
 public interface RentalService extends SuperService {
 
     boolean saveRental(RentalDTO dto) throws Exception;
+
     boolean updateRental(RentalDTO dto) throws Exception;
-    boolean deleteRental(long id) throws Exception;
-    RentalDTO searchRental(long id) throws Exception;
+
+    boolean closeRental(long rentalId) throws Exception;
+
+    RentalDTO findRental(long rentalId) throws Exception;
+
     List<RentalDTO> getAllRentals() throws Exception;
 
-    // New business logic
-    boolean createRentalFromReservation(long reservationId) throws Exception;
+    // ✅ NO PARAMETER
+    List<RentalDTO> getOverdueRentals() throws Exception;
 }

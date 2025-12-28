@@ -4,69 +4,79 @@
 <?import javafx.scene.layout.*?>
 
 <?import javafx.geometry.Insets?>
-<BorderPane xmlns="http://javafx.com/javafx/13"
+<BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="lk.ijse.controller.rental.RentalController">
 
-    <!-- ================= TOP ================= -->
+    <!-- ===================== TOP ===================== -->
     <top>
         <ToolBar>
-            <Button text="Add" onAction="#addRental"/>
-            <Button text="Update" onAction="#updateRental"/>
-            <Button text="Delete" onAction="#deleteRental"/>
-            <Separator/>
-            <Button text="Create From Reservation" onAction="#createFromReservation"/>
+            <Button text="Save Rental" onAction="#btnSaveOnAction"/>
+            <Button text="Update Rental" onAction="#btnUpdateOnAction"/>
+            <Button text="Process Return" onAction="#btnReturnOnAction"/>
+            <Button text="Delete Rental" onAction="#btnDeleteOnAction"/>
         </ToolBar>
     </top>
 
-    <!-- ================= CENTER ================= -->
+    <!-- ===================== CENTER (TABLE) ===================== -->
     <center>
-        <TableView fx:id="tblRental">
+        <TableView fx:id="tblRentals">
             <columns>
-                <TableColumn fx:id="colId" text="ID"/>
-                <TableColumn fx:id="colCustomer" text="Customer"/>
-                <TableColumn fx:id="colEquipment" text="Equipment"/>
-                <TableColumn fx:id="colFrom" text="From"/>
-                <TableColumn fx:id="colTo" text="To"/>
-                <TableColumn fx:id="colDaily" text="Daily Price"/>
-                <TableColumn fx:id="colStatus" text="Status"/>
+                <TableColumn fx:id="colRentalId" text="Rental ID" prefWidth="100"/>
+                <TableColumn fx:id="colCustomerId" text="Customer ID" prefWidth="120"/>
+                <TableColumn fx:id="colEquipmentId" text="Equipment ID" prefWidth="120"/>
+                <TableColumn fx:id="colStatus" text="Status" prefWidth="100"/>
             </columns>
         </TableView>
     </center>
 
-    <!-- ================= BOTTOM ================= -->
+    <!-- ===================== BOTTOM (FORM) ===================== -->
     <bottom>
         <GridPane hgap="10" vgap="10">
             <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
+                <Insets top="15" right="15" bottom="15" left="15"/>
             </padding>
 
-            <Label text="Rental ID" GridPane.rowIndex="0"/>
-            <TextField fx:id="txtRentalId" editable="false" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+            <Label text="Rental ID"/>
+            <TextField fx:id="txtRentalId" GridPane.columnIndex="1"/>
 
-            <Label text="Customer ID" GridPane.rowIndex="1"/>
-            <TextField fx:id="txtCustomerId" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+            <Label text="Branch ID" GridPane.rowIndex="1"/>
+            <TextField fx:id="txtBranchId" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-            <Label text="Equipment ID" GridPane.rowIndex="2"/>
-            <TextField fx:id="txtEquipmentId" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            <Label text="Customer ID" GridPane.rowIndex="2"/>
+            <TextField fx:id="txtCustomerId" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-            <Label text="Reservation ID" GridPane.rowIndex="3"/>
-            <TextField fx:id="txtReservationId" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+            <Label text="Equipment ID" GridPane.rowIndex="3"/>
+            <TextField fx:id="txtEquipmentId" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-            <Label text="From" GridPane.rowIndex="4"/>
-            <DatePicker fx:id="dpFrom" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+            <Label text="Rented From" GridPane.rowIndex="4"/>
+            <DatePicker fx:id="dpRentedFrom" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
 
-            <Label text="To" GridPane.rowIndex="5"/>
-            <DatePicker fx:id="dpTo" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+            <Label text="Expected Return" GridPane.rowIndex="5"/>
+            <DatePicker fx:id="dpExpectedReturn" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
 
-            <Label text="Daily Price" GridPane.rowIndex="6"/>
-            <TextField fx:id="txtDailyPrice" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+            <Label text="Actual Return" GridPane.rowIndex="6"/>
+            <DatePicker fx:id="dpActualReturn" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
 
-            <Label text="Deposit" GridPane.rowIndex="7"/>
-            <TextField fx:id="txtDeposit" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+            <Label text="Daily Rate" GridPane.rowIndex="7"/>
+            <TextField fx:id="txtDailyRate" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
 
-            <Label text="Status" GridPane.rowIndex="8"/>
-            <ComboBox fx:id="cmbStatus" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+            <Label text="Deposit" GridPane.rowIndex="8"/>
+            <TextField fx:id="txtDeposit" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+
+            <Label text="Damage Charge" GridPane.rowIndex="9"/>
+            <TextField fx:id="txtDamageCharge" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+
+            <Label text="Payment Status" GridPane.rowIndex="10"/>
+            <ComboBox fx:id="cmbPaymentStatus"
+                      GridPane.rowIndex="10"
+                      GridPane.columnIndex="1"/>
+
+            <Label text="Rental Status" GridPane.rowIndex="11"/>
+            <ComboBox fx:id="cmbStatus"
+                      GridPane.rowIndex="11"
+                      GridPane.columnIndex="1"/>
+
         </GridPane>
     </bottom>
 

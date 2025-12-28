@@ -6,93 +6,116 @@ import lk.ijse.entity.Rental;
 
 import java.sql.Date;
 import java.sql.ResultSet;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.math.BigDecimal;
 
 public class RentalDAOImpl implements RentalDAO {
 
     @Override
     public boolean save(Rental r) throws Exception {
-        String sql = "INSERT INTO rentals (customer_id, equipment_id, rented_from, rented_to, daily_price, security_deposit, reservation_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        return CrudUtil.executeUpdate(sql,
+        return CrudUtil.executeUpdate(
+                """
+                INSERT INTO rentals
+                (customer_id, equipment_id, rented_from, rented_to,
+                 daily_price, security_deposit, reservation_id, status)
+                VALUES (?,?,?,?,?,?,?,?)
+                """,
                 r.getCustomerId(),
                 r.getEquipmentId(),
                 Date.valueOf(r.getRentedFrom()),
                 Date.valueOf(r.getRentedTo()),
-                r.getDailyPrice().doubleValue(),
-                r.getSecurityDeposit().doubleValue(),
+                r.getDailyPrice(),
+                r.getSecurityDeposit(),
                 r.getReservationId(),
-                r.getStatus());
+                r.getStatus()
+        );
     }
 
     @Override
     public boolean update(Rental r) throws Exception {
-        String sql = "UPDATE rentals SET rented_to=?, daily_price=?, security_deposit=?, status=? WHERE rental_id=?";
-        return CrudUtil.executeUpdate(sql,
+        return CrudUtil.executeUpdate(
+                """
+                UPDATE rentals SET
+                customer_id=?,
+                equipment_id=?,
+                rented_from=?,
+                rented_to=?,
+                daily_price=?,
+                security_deposit=?,
+                reservation_id=?,
+                status=?
+                WHERE rental_id=?
+                """,
+                r.getCustomerId(),
+                r.getEquipmentId(),
+                Date.valueOf(r.getRentedFrom()),
                 Date.valueOf(r.getRentedTo()),
-                r.getDailyPrice().doubleValue(),
-                r.getSecurityDeposit().doubleValue(),
+                r.getDailyPrice(),
+                r.getSecurityDeposit(),
+                r.getReservationId(),
                 r.getStatus(),
-                r.getRentalId());
+                r.getRentalId()
+        );
     }
 
     @Override
     public boolean delete(Long id) throws Exception {
-        String sql = "DELETE FROM rentals WHERE rental_id=?";
-        return CrudUtil.executeUpdate(sql, id);
+        return CrudUtil.executeUpdate(
+                "DELETE FROM rentals WHERE rental_id=?", id
+        );
     }
 
     @Override
     public Rental find(Long id) throws Exception {
-        String sql = "SELECT * FROM rentals WHERE rental_id=?";
-        ResultSet rs = CrudUtil.executeQuery(sql, id);
-        if (rs.next()) {
-            return mapRow(rs);
-        }
-        return null;
+        ResultSet rs = CrudUtil.executeQuery(
+                "SELECT * FROM rentals WHERE rental_id=?", id
+        );
+
+        return rs.next() ? map(rs) : null;
     }
 
     @Override
     public List<Rental> findAll() throws Exception {
-        String sql = "SELECT * FROM rentals";
-        ResultSet rs = CrudUtil.executeQuery(sql);
+        ResultSet rs = CrudUtil.executeQuery("SELECT * FROM rentals");
         List<Rental> list = new ArrayList<>();
+
         while (rs.next()) {
-            list.add(mapRow(rs));
+            list.add(map(rs));
         }
         return list;
     }
 
     @Override
-    public boolean isEquipmentAvailable(long equipmentId, Date from, Date to) throws Exception {
-        // Check both rentals and reservations in a single query
-        String sql = """
-        SELECT COUNT(*) FROM (
-            SELECT rented_from AS start_date, rented_to AS end_date FROM rentals 
-                WHERE equipment_id=? AND status='Open'
-            UNION ALL
-            SELECT reserved_from AS start_date, reserved_to AS end_date FROM reservations
-                WHERE equipment_id=? AND status IN ('Pending','Confirmed')
-        ) AS periods
-        WHERE NOT (? > end_date OR ? < start_date)
-        """;
+    public List<Rental> findOverdueRentals(LocalDate today) throws Exception {
+        ResultSet rs = CrudUtil.executeQuery(
+                """
+                SELECT * FROM rentals
+                WHERE rented_to < ?
+                AND status = 'Open'
+                """,
+                Date.valueOf(today)
+        );
 
-        ResultSet rs = CrudUtil.executeQuery(sql, equipmentId, equipmentId, from, to);
-        rs.next();
-        return rs.getInt(1) == 0;
+        List<Rental> list = new ArrayList<>();
+        while (rs.next()) {
+            list.add(map(rs));
+        }
+        return list;
     }
 
-    private Rental mapRow(ResultSet rs) throws Exception {
+    /* ===================== MAPPER ===================== */
+
+    private Rental map(ResultSet rs) throws Exception {
         return new Rental(
                 rs.getLong("rental_id"),
                 rs.getLong("customer_id"),
                 rs.getLong("equipment_id"),
                 rs.getDate("rented_from").toLocalDate(),
                 rs.getDate("rented_to").toLocalDate(),
-                BigDecimal.valueOf(rs.getDouble("daily_price")),
-                BigDecimal.valueOf(rs.getDouble("security_deposit")),
-                rs.getLong("reservation_id"),
+                rs.getBigDecimal("daily_price"),
+                rs.getBigDecimal("security_deposit"),
+                rs.getObject("reservation_id", Long.class),
                 rs.getString("status"),
                 rs.getTimestamp("created_at")
         );

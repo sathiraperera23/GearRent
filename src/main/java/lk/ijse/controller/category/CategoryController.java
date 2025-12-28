@@ -1,84 +1,145 @@
 package lk.ijse.controller.category;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import lk.ijse.dto.CategoryDTO;
 import lk.ijse.service.ServiceFactory;
 import lk.ijse.service.custom.CategoryService;
 
-import java.util.List;
-import java.util.Scanner;
-
 public class CategoryController {
 
+    /* ===================== TABLE ===================== */
+
+    @FXML private TableView<CategoryDTO> tblCategories;
+    @FXML private TableColumn<CategoryDTO, Integer> colId;
+    @FXML private TableColumn<CategoryDTO, String> colName;
+    @FXML private TableColumn<CategoryDTO, String> colDescription;
+
+    /* ===================== FORM ===================== */
+
+    @FXML private TextField txtCategoryId;
+    @FXML private TextField txtName;
+    @FXML private TextArea txtDescription;
+
+    private CategoryDTO selectedCategory;
+
+    /* ===================== SERVICE ===================== */
+
     private final CategoryService categoryService =
-            (CategoryService) ServiceFactory.getInstance().getService(ServiceFactory.ServiceType.CATEGORY);
+            (CategoryService) ServiceFactory.getInstance()
+                    .getService(ServiceFactory.ServiceType.CATEGORY);
 
-    private final Scanner scanner = new Scanner(System.in);
+    /* ===================== INIT ===================== */
 
-    public void createCategory() {
+    @FXML
+    public void initialize() {
+
+        colId.setCellValueFactory(new PropertyValueFactory<>("categoryId"));
+        colName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        colDescription.setCellValueFactory(new PropertyValueFactory<>("description"));
+
+        tableListener();
+        loadTable();
+    }
+
+    private void tableListener() {
+        tblCategories.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((obs, old, c) -> {
+                    if (c != null) {
+                        selectedCategory = c;
+                        fillForm(c);
+                    }
+                });
+    }
+
+    private void fillForm(CategoryDTO c) {
+        txtCategoryId.setText(String.valueOf(c.getCategoryId()));
+        txtName.setText(c.getName());
+        txtDescription.setText(c.getDescription());
+    }
+
+    private void loadTable() {
         try {
-            System.out.print("Enter Category Name: ");
-            String name = scanner.nextLine();
-
-            System.out.print("Description: ");
-            String desc = scanner.nextLine();
-
-            // Match DTO constructor (3 fields only)
-            CategoryDTO dto = new CategoryDTO(0, name, desc);
-
-            boolean success = categoryService.addCategory(dto);
-            System.out.println(success ? "Category Added!" : "Failed to Add Category.");
-
+            ObservableList<CategoryDTO> list =
+                    FXCollections.observableArrayList(
+                            categoryService.getAllCategories()
+                    );
+            tblCategories.setItems(list);
         } catch (Exception e) {
-            System.out.println("Error adding category: " + e.getMessage());
+            showError(e.getMessage());
         }
     }
 
-    public void listCategories() {
-        try {
-            List<CategoryDTO> list = categoryService.getAllCategories();
+    /* ===================== BUTTONS ===================== */
 
-            System.out.println("\n--- CATEGORY LIST ---");
-            for (CategoryDTO c : list) {
-                System.out.println(c.getCategoryId() + " | " + c.getName() + " | " + c.getDescription());
+    @FXML
+    void btnAddOnAction() {
+        try {
+            CategoryDTO dto = new CategoryDTO(
+                    0,
+                    txtName.getText(),
+                    txtDescription.getText()
+            );
+            categoryService.addCategory(dto);
+            loadTable();
+            clearForm();
+        } catch (Exception e) {
+            showError(e.getMessage());
+        }
+    }
+
+    @FXML
+    void btnUpdateOnAction() {
+        try {
+            if (selectedCategory == null) {
+                showError("Select a category to update");
+                return;
             }
 
+            CategoryDTO dto = new CategoryDTO(
+                    Integer.parseInt(txtCategoryId.getText()),
+                    txtName.getText(),
+                    txtDescription.getText()
+            );
+
+            categoryService.updateCategory(dto);
+            loadTable();
         } catch (Exception e) {
-            System.out.println("Error listing categories: " + e.getMessage());
+            showError(e.getMessage());
         }
     }
 
-    public void updateCategory() {
+    @FXML
+    void btnDeleteOnAction() {
         try {
-            System.out.print("Enter Category ID: ");
-            int id = Integer.parseInt(scanner.nextLine());
-
-            System.out.print("New Name: ");
-            String name = scanner.nextLine();
-
-            System.out.print("New Description: ");
-            String desc = scanner.nextLine();
-
-            // DTO takes only 3 arguments
-            CategoryDTO dto = new CategoryDTO(id, name, desc);
-
-            boolean success = categoryService.updateCategory(dto);
-            System.out.println(success ? "Category Updated!" : "Update Failed.");
-
+            int id = Integer.parseInt(txtCategoryId.getText());
+            categoryService.deleteCategory(id);
+            loadTable();
+            clearForm();
         } catch (Exception e) {
-            System.out.println("Error updating category: " + e.getMessage());
+            showError(e.getMessage());
         }
     }
 
-    public void deleteCategory() {
-        try {
-            System.out.print("Enter Category ID: ");
-            int id = Integer.parseInt(scanner.nextLine());
+    @FXML
+    void btnClearOnAction() {
+        clearForm();
+    }
 
-            boolean success = categoryService.deleteCategory(id);
-            System.out.println(success ? "Category Deleted!" : "Delete Failed.");
+    /* ===================== HELPERS ===================== */
 
-        } catch (Exception e) {
-            System.out.println("Error deleting category: " + e.getMessage());
-        }
+    private void clearForm() {
+        txtCategoryId.clear();
+        txtName.clear();
+        txtDescription.clear();
+        selectedCategory = null;
+    }
+
+    private void showError(String msg) {
+        new Alert(Alert.AlertType.ERROR, msg).show();
     }
 }

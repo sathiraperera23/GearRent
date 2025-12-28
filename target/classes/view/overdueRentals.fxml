@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="lk.ijse.controller.rental.OverdueRentalsController">
+
+    <top>
+        <Label text="Overdue Rentals"
+               style="-fx-font-size:18; -fx-font-weight:bold;"
+               BorderPane.alignment="CENTER"/>
+    </top>
+
+    <center>
+        <TableView fx:id="tblOverdue">
+            <columns>
+                <TableColumn fx:id="colRentalId" text="Rental ID"/>
+                <TableColumn fx:id="colBranchId" text="Branch"/>
+                <TableColumn fx:id="colCustomerId" text="Customer"/>
+                <TableColumn fx:id="colEquipmentId" text="Equipment"/>
+                <TableColumn fx:id="colDueDate" text="Due Date"/>
+                <TableColumn fx:id="colDaysOverdue" text="Days Overdue"/>
+            </columns>
+        </TableView>
+    </center>
+
+</BorderPane>

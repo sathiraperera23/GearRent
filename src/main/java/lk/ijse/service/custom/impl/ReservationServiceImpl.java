@@ -150,32 +150,32 @@ public class ReservationServiceImpl implements ReservationService {
         return updateReservation(reservation);
     }
 
-    @Override
-    public boolean createRentalFromReservation(long reservationId) throws Exception {
-
-        ReservationDTO reservation = searchReservation(reservationId);
-        if (reservation == null) return false;
-
-        if (!"Confirmed".equals(reservation.getStatus())) return false;
-
-        RentalDTO rental = new RentalDTO(
-                0,
-                reservation.getCustomerId(),
-                reservation.getEquipmentId(),
-                reservation.getReservedFrom(),
-                reservation.getReservedTo(),
-                reservation.getTotalPrice(),
-                reservation.getTotalPrice(),
-                reservationId,
-                "Open",
-                null
-        );
-
-        if (!rentalService.saveRental(rental)) return false;
-
-        reservation.setStatus("Completed");
-        return updateReservation(reservation);
-    }
+//    @Override
+//    public boolean createRentalFromReservation(long reservationId) throws Exception {
+//
+//        ReservationDTO reservation = searchReservation(reservationId);
+//        if (reservation == null) return false;
+//
+//        if (!"Confirmed".equals(reservation.getStatus())) return false;
+//
+//        RentalDTO rental = new RentalDTO(
+//                0,
+//                reservation.getCustomerId(),
+//                reservation.getEquipmentId(),
+//                reservation.getReservedFrom(),
+//                reservation.getReservedTo(),
+//                reservation.getTotalPrice(),
+//                reservation.getTotalPrice(),
+//                reservationId,
+//                "Open",
+//                null
+//        );
+//
+//        if (!rentalService.saveRental(rental)) return false;
+//
+//        reservation.setStatus("Completed");
+//        return updateReservation(reservation);
+//    }
 
     /* ===================== HELPERS ===================== */
 

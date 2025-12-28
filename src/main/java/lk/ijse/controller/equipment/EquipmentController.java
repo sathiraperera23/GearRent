@@ -1,128 +1,179 @@
 package lk.ijse.controller.equipment;
 
-
-
-import lk.ijse.service.custom.EquipmentService;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import lk.ijse.dto.EquipmentDTO;
 import lk.ijse.service.ServiceFactory;
 import lk.ijse.service.custom.EquipmentService;
-import lk.ijse.dto.EquipmentDTO;
-
-import java.util.List;
-import java.util.Scanner;
 
 public class EquipmentController {
 
+    /* ===================== TABLE ===================== */
+
+    @FXML private TableView<EquipmentDTO> tblEquipment;
+    @FXML private TableColumn<EquipmentDTO, Long> colId;
+    @FXML private TableColumn<EquipmentDTO, String> colCode;
+    @FXML private TableColumn<EquipmentDTO, String> colBrand;
+    @FXML private TableColumn<EquipmentDTO, String> colModel;
+    @FXML private TableColumn<EquipmentDTO, Double> colPrice;
+    @FXML private TableColumn<EquipmentDTO, String> colStatus;
+
+    /* ===================== FORM ===================== */
+
+    @FXML private TextField txtEquipmentId;
+    @FXML private TextField txtCategoryId;
+    @FXML private TextField txtBranchId;
+    @FXML private TextField txtCode;
+    @FXML private TextField txtBrand;
+    @FXML private TextField txtModel;
+    @FXML private TextField txtYear;
+    @FXML private TextField txtDailyPrice;
+    @FXML private TextField txtDeposit;
+    @FXML private ComboBox<String> cmbStatus;
+
+    private EquipmentDTO selectedEquipment;
+
+    /* ===================== SERVICE ===================== */
+
     private final EquipmentService equipmentService =
-            (EquipmentService) ServiceFactory.getInstance().getService(ServiceFactory.ServiceType.EQUIPMENT);
+            (EquipmentService) ServiceFactory.getInstance()
+                    .getService(ServiceFactory.ServiceType.EQUIPMENT);
 
-    private final Scanner scanner = new Scanner(System.in);
+    /* ===================== INIT ===================== */
 
-    public void createEquipment() {
+    @FXML
+    public void initialize() {
+
+        colId.setCellValueFactory(new PropertyValueFactory<>("equipmentId"));
+        colCode.setCellValueFactory(new PropertyValueFactory<>("equipmentCode"));
+        colBrand.setCellValueFactory(new PropertyValueFactory<>("brand"));
+        colModel.setCellValueFactory(new PropertyValueFactory<>("model"));
+        colPrice.setCellValueFactory(new PropertyValueFactory<>("baseDailyPrice"));
+        colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+
+        cmbStatus.setItems(
+                FXCollections.observableArrayList("Available", "Rented", "Maintenance")
+        );
+
+        tableListener();
+        loadTable();
+    }
+
+    private void tableListener() {
+        tblEquipment.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((obs, old, e) -> {
+                    if (e != null) {
+                        selectedEquipment = e;
+                        fillForm(e);
+                    }
+                });
+    }
+
+    private void fillForm(EquipmentDTO e) {
+        txtEquipmentId.setText(String.valueOf(e.getEquipmentId()));
+        txtCategoryId.setText(String.valueOf(e.getCategoryId()));
+        txtBranchId.setText(String.valueOf(e.getBranchId()));
+        txtCode.setText(e.getEquipmentCode());
+        txtBrand.setText(e.getBrand());
+        txtModel.setText(e.getModel());
+        txtYear.setText(String.valueOf(e.getPurchaseYear()));
+        txtDailyPrice.setText(String.valueOf(e.getBaseDailyPrice()));
+        txtDeposit.setText(String.valueOf(e.getSecurityDeposit()));
+        cmbStatus.setValue(e.getStatus());
+    }
+
+    private void loadTable() {
         try {
-            System.out.print("Equipment Code: ");
-            String code = scanner.nextLine();
-
-            System.out.print("Brand: ");
-            String brand = scanner.nextLine();
-
-            System.out.print("Model: ");
-            String model = scanner.nextLine();
-
-            System.out.print("Purchase Year: ");
-            int year = Integer.parseInt(scanner.nextLine());
-
-            System.out.print("Branch ID: ");
-            int branchId = Integer.parseInt(scanner.nextLine());
-
-            System.out.print("Category ID: ");
-            int categoryId = Integer.parseInt(scanner.nextLine());
-
-            System.out.print("Daily Price: ");
-            double price = Double.parseDouble(scanner.nextLine());
-
-            System.out.print("Security Deposit: ");
-            double deposit = Double.parseDouble(scanner.nextLine());
-
-            // Build DTO matching your constructor
-            EquipmentDTO dto = new EquipmentDTO(
-                    0,                 // equipmentId (auto increment)
-                    categoryId,
-                    branchId,
-                    code,              // equipment_code
-                    brand,
-                    model,
-                    year,
-                    price,
-                    deposit,
-                    "Available"        // default status
-            );
-
-            boolean success = equipmentService.saveEquipment(dto);
-            System.out.println(success ? "Equipment Added!" : "Failed to Add Equipment.");
-
+            ObservableList<EquipmentDTO> list =
+                    FXCollections.observableArrayList(
+                            equipmentService.getAllEquipment()
+                    );
+            tblEquipment.setItems(list);
         } catch (Exception e) {
-            System.out.println("Error creating equipment: " + e.getMessage());
+            showError(e.getMessage());
         }
     }
 
-    public void listEquipment() {
-        try {
-            List<EquipmentDTO> list = equipmentService.getAllEquipment();
-            System.out.println("\n--- EQUIPMENT LIST ---");
+    /* ===================== BUTTONS ===================== */
 
-            for (EquipmentDTO eq : list) {
-                System.out.println(
-                        eq.getEquipmentId() + " | " +
-                                eq.getEquipmentCode() + " | " +
-                                eq.getBrand() + " | " +
-                                eq.getModel() + " | " +
-                                eq.getStatus()
-                );
+    @FXML
+    void btnAddOnAction() {
+        try {
+            equipmentService.saveEquipment(buildDTO());
+            loadTable();
+            clearForm();
+        } catch (Exception e) {
+            showError(e.getMessage());
+        }
+    }
+
+    @FXML
+    void btnUpdateOnAction() {
+        try {
+            if (selectedEquipment == null) {
+                showError("Select equipment to update");
+                return;
             }
-
+            equipmentService.updateEquipment(buildDTO());
+            loadTable();
         } catch (Exception e) {
-            System.out.println("Error fetching list: " + e.getMessage());
+            showError(e.getMessage());
         }
     }
 
-    public void updateEquipment() {
+    @FXML
+    void btnDeleteOnAction() {
         try {
-            System.out.print("Equipment ID to Update: ");
-            long id = Long.parseLong(scanner.nextLine());
-
-            System.out.print("New Brand: ");
-            String brand = scanner.nextLine();
-
-            System.out.print("New Model: ");
-            String model = scanner.nextLine();
-
-            System.out.print("New Status (Available / Reserved / Rented / Under Maintenance): ");
-            String status = scanner.nextLine();
-
-            EquipmentDTO dto = new EquipmentDTO();
-            dto.setEquipmentId(id);
-            dto.setBrand(brand);
-            dto.setModel(model);
-            dto.setStatus(status);
-
-            boolean success = equipmentService.updateEquipment(dto);
-            System.out.println(success ? "Updated Successfully!" : "Update Failed.");
-
+            long id = Long.parseLong(txtEquipmentId.getText());
+            equipmentService.deleteEquipment(id);
+            loadTable();
+            clearForm();
         } catch (Exception e) {
-            System.out.println("Error updating equipment: " + e.getMessage());
+            showError(e.getMessage());
         }
     }
 
-    public void deleteEquipment() {
-        try {
-            System.out.print("Enter Equipment ID: ");
-            long id = Long.parseLong(scanner.nextLine());
+    @FXML
+    void btnClearOnAction() {
+        clearForm();
+    }
 
-            boolean success = equipmentService.deleteEquipment(id);
-            System.out.println(success ? "Deleted Successfully!" : "Delete Failed.");
+    /* ===================== HELPERS ===================== */
 
-        } catch (Exception e) {
-            System.out.println("Error deleting equipment: " + e.getMessage());
-        }
+    private EquipmentDTO buildDTO() {
+        return new EquipmentDTO(
+                Long.parseLong(txtEquipmentId.getText()),
+                Integer.parseInt(txtCategoryId.getText()),
+                Integer.parseInt(txtBranchId.getText()),
+                txtCode.getText(),
+                txtBrand.getText(),
+                txtModel.getText(),
+                Integer.parseInt(txtYear.getText()),
+                Double.parseDouble(txtDailyPrice.getText()),
+                Double.parseDouble(txtDeposit.getText()),
+                cmbStatus.getValue()
+        );
+    }
+
+    private void clearForm() {
+        txtEquipmentId.clear();
+        txtCategoryId.clear();
+        txtBranchId.clear();
+        txtCode.clear();
+        txtBrand.clear();
+        txtModel.clear();
+        txtYear.clear();
+        txtDailyPrice.clear();
+        txtDeposit.clear();
+        cmbStatus.getSelectionModel().clearSelection();
+        selectedEquipment = null;
+    }
+
+    private void showError(String msg) {
+        new Alert(Alert.AlertType.ERROR, msg).show();
     }
 }

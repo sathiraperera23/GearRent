@@ -17,5 +17,5 @@ public interface ReservationService extends SuperService {
     // --- Business Logic Operations ---
     boolean confirmReservation(long reservationId) throws Exception;
     boolean cancelReservation(long reservationId) throws Exception;
-    boolean createRentalFromReservation(long reservationId) throws Exception;
+//    boolean createRentalFromReservation(long reservationId) throws Exception;
 }
