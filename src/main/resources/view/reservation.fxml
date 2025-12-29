@@ -2,46 +2,49 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
 <?import javafx.geometry.Insets?>
-<BorderPane xmlns="http://javafx.com/javafx/13"
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="lk.ijse.controller.reservation.ReservationController">
 
-
-<top>
+    <!-- ===================== TOP ===================== -->
+    <top>
         <ToolBar>
             <Button text="Add" onAction="#addReservation"/>
             <Button text="Update" onAction="#updateReservation"/>
             <Button text="Delete" onAction="#deleteReservation"/>
             <Separator/>
-            <Button text="Confirm" fx:id="btnConfirm" onAction="#confirmReservation"/>
-            <Button text="Cancel" fx:id="btnCancel" onAction="#cancelReservation"/>
-            <Button text="Create Rental" fx:id="btnCreateRental" onAction="#createRental"/>
+            <Button fx:id="btnConfirm" text="Confirm" onAction="#confirmReservation"/>
+            <Button fx:id="btnCancel" text="Cancel" onAction="#cancelReservation"/>
+            <Button fx:id="btnCreateRental" text="Create Rental" onAction="#createRental"/>
         </ToolBar>
     </top>
 
+    <!-- ===================== CENTER ===================== -->
     <center>
         <TableView fx:id="tblReservation">
             <columns>
-                <TableColumn fx:id="colId" text="ID"/>
-                <TableColumn fx:id="colCustomer" text="Customer"/>
-                <TableColumn fx:id="colEquipment" text="Equipment"/>
-                <TableColumn fx:id="colFrom" text="From"/>
-                <TableColumn fx:id="colTo" text="To"/>
-                <TableColumn fx:id="colTotal" text="Total"/>
-                <TableColumn fx:id="colStatus" text="Status"/>
+                <TableColumn fx:id="colId" text="ID" prefWidth="80"/>
+                <TableColumn fx:id="colCustomer" text="Customer" prefWidth="100"/>
+                <TableColumn fx:id="colEquipment" text="Equipment" prefWidth="100"/>
+                <TableColumn fx:id="colFrom" text="From" prefWidth="100"/>
+                <TableColumn fx:id="colTo" text="To" prefWidth="100"/>
+                <TableColumn fx:id="colTotal" text="Total" prefWidth="120"/>
+                <TableColumn fx:id="colStatus" text="Status" prefWidth="100"/>
             </columns>
         </TableView>
     </center>
 
+    <!-- ===================== BOTTOM ===================== -->
     <bottom>
         <GridPane hgap="10" vgap="10">
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
-            <Label text="Reservation ID" GridPane.rowIndex="0"/>
-            <TextField fx:id="txtReservationId" editable="false" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+            <Label text="Reservation ID"/>
+            <TextField fx:id="txtReservationId" editable="false" GridPane.columnIndex="1"/>
 
             <Label text="Customer ID" GridPane.rowIndex="1"/>
             <TextField fx:id="txtCustomerId" GridPane.rowIndex="1" GridPane.columnIndex="1"/>

@@ -8,31 +8,38 @@ public class Rental {
     private long rentalId;
     private long customerId;
     private long equipmentId;
+    private long branchId;
     private LocalDate rentedFrom;
     private LocalDate rentedTo;
-    private LocalDate actualReturn;        // NEW
+    private LocalDate actualReturn;
     private BigDecimal dailyPrice;
     private BigDecimal securityDeposit;
     private Long reservationId;
-    private String status;
+    private String status;                 // Active / Returned / Overdue / Cancelled
     private LocalDateTime createdAt;
+
+    // Payment info
     private BigDecimal totalAmount;
     private BigDecimal discount;
     private BigDecimal finalAmount;
     private String paymentStatus;
-    private BigDecimal damageCharge;       // NEW
+
+    // Damage info
+    private BigDecimal damageCharge;
+    private String damageDescription;
 
     public Rental() {}
 
-    public Rental(long rentalId, long customerId, long equipmentId,
+    public Rental(long rentalId, long customerId, long equipmentId, long branchId,
                   LocalDate rentedFrom, LocalDate rentedTo, LocalDate actualReturn,
-                  BigDecimal dailyPrice, BigDecimal securityDeposit,
-                  Long reservationId, String status, LocalDateTime createdAt,
-                  BigDecimal totalAmount, BigDecimal discount, BigDecimal finalAmount,
-                  String paymentStatus, BigDecimal damageCharge) {
+                  BigDecimal dailyPrice, BigDecimal securityDeposit, Long reservationId,
+                  String status, LocalDateTime createdAt, BigDecimal totalAmount,
+                  BigDecimal discount, BigDecimal finalAmount, String paymentStatus,
+                  BigDecimal damageCharge, String damageDescription) {
         this.rentalId = rentalId;
         this.customerId = customerId;
         this.equipmentId = equipmentId;
+        this.branchId = branchId;
         this.rentedFrom = rentedFrom;
         this.rentedTo = rentedTo;
         this.actualReturn = actualReturn;
@@ -46,9 +53,10 @@ public class Rental {
         this.finalAmount = finalAmount;
         this.paymentStatus = paymentStatus;
         this.damageCharge = damageCharge;
+        this.damageDescription = damageDescription;
     }
 
-    // ==================== GETTERS & SETTERS ====================
+    // ==================== Getters & Setters ====================
     public long getRentalId() { return rentalId; }
     public void setRentalId(long rentalId) { this.rentalId = rentalId; }
 
@@ -57,6 +65,9 @@ public class Rental {
 
     public long getEquipmentId() { return equipmentId; }
     public void setEquipmentId(long equipmentId) { this.equipmentId = equipmentId; }
+
+    public long getBranchId() { return branchId; }
+    public void setBranchId(long branchId) { this.branchId = branchId; }
 
     public LocalDate getRentedFrom() { return rentedFrom; }
     public void setRentedFrom(LocalDate rentedFrom) { this.rentedFrom = rentedFrom; }
@@ -96,4 +107,7 @@ public class Rental {
 
     public BigDecimal getDamageCharge() { return damageCharge; }
     public void setDamageCharge(BigDecimal damageCharge) { this.damageCharge = damageCharge; }
+
+    public String getDamageDescription() { return damageDescription; }
+    public void setDamageDescription(String damageDescription) { this.damageDescription = damageDescription; }
 }

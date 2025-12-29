@@ -8,8 +8,10 @@ import java.util.List;
 
 public interface RentalDAO extends CrudDAO<Rental, Long> {
 
-    // Find overdue rentals
     List<Rental> findOverdueRentals(LocalDate today) throws Exception;
 
-    // Optional: additional methods for reporting or filtering
+    boolean isEquipmentAvailable(long equipmentId,
+                                 LocalDate from,
+                                 LocalDate to,
+                                 Long excludeRentalId) throws Exception;
 }

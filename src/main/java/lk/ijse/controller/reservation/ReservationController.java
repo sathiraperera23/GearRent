@@ -13,7 +13,7 @@ import java.time.LocalDate;
 
 public class ReservationController {
 
-    // ===== Form =====
+    /* ===================== FORM ===================== */
     @FXML private TextField txtReservationId;
     @FXML private TextField txtCustomerId;
     @FXML private TextField txtEquipmentId;
@@ -21,7 +21,7 @@ public class ReservationController {
     @FXML private DatePicker dpFrom;
     @FXML private DatePicker dpTo;
 
-    // ===== Table =====
+    /* ===================== TABLE ===================== */
     @FXML private TableView<ReservationDTO> tblReservation;
     @FXML private TableColumn<ReservationDTO, Long> colId;
     @FXML private TableColumn<ReservationDTO, Long> colCustomer;
@@ -31,7 +31,7 @@ public class ReservationController {
     @FXML private TableColumn<ReservationDTO, BigDecimal> colTotal;
     @FXML private TableColumn<ReservationDTO, String> colStatus;
 
-    // ===== Buttons =====
+    /* ===================== BUTTONS ===================== */
     @FXML private Button btnConfirm;
     @FXML private Button btnCancel;
     @FXML private Button btnCreateRental;
@@ -40,25 +40,33 @@ public class ReservationController {
             (ReservationService) ServiceFactory.getInstance()
                     .getService(ServiceFactory.ServiceType.RESERVATION);
 
+    /* ===================== INITIALIZE ===================== */
     @FXML
     public void initialize() {
 
-        colId.setCellValueFactory(c -> new SimpleLongProperty(c.getValue().getReservationId()).asObject());
-        colCustomer.setCellValueFactory(c -> new SimpleLongProperty(c.getValue().getCustomerId()).asObject());
-        colEquipment.setCellValueFactory(c -> new SimpleLongProperty(c.getValue().getEquipmentId()).asObject());
-        colFrom.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().getReservedFrom()));
-        colTo.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().getReservedTo()));
-        colTotal.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().getTotalPrice()));
-        colStatus.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getStatus()));
+        colId.setCellValueFactory(c ->
+                new SimpleLongProperty(c.getValue().getReservationId()).asObject());
+        colCustomer.setCellValueFactory(c ->
+                new SimpleLongProperty(c.getValue().getCustomerId()).asObject());
+        colEquipment.setCellValueFactory(c ->
+                new SimpleLongProperty(c.getValue().getEquipmentId()).asObject());
+        colFrom.setCellValueFactory(c ->
+                new SimpleObjectProperty<>(c.getValue().getReservedFrom()));
+        colTo.setCellValueFactory(c ->
+                new SimpleObjectProperty<>(c.getValue().getReservedTo()));
+        colTotal.setCellValueFactory(c ->
+                new SimpleObjectProperty<>(c.getValue().getTotalPrice()));
+        colStatus.setCellValueFactory(c ->
+                new SimpleStringProperty(c.getValue().getStatus()));
 
         loadReservations();
 
         tblReservation.getSelectionModel()
                 .selectedItemProperty()
-                .addListener((obs, old, selected) -> populateForm(selected));
+                .addListener((obs, old, r) -> populateForm(r));
     }
 
-    // ================= CRUD =================
+    /* ===================== CRUD ===================== */
 
     @FXML
     private void addReservation() {
@@ -76,7 +84,7 @@ public class ReservationController {
 
             reservationService.saveReservation(dto);
             loadReservations();
-            clearFields();
+            clearForm();
             info("Reservation added");
 
         } catch (Exception e) {
@@ -103,7 +111,7 @@ public class ReservationController {
 
             reservationService.updateReservation(dto);
             loadReservations();
-            clearFields();
+            clearForm();
             info("Reservation updated");
 
         } catch (Exception e) {
@@ -119,7 +127,7 @@ public class ReservationController {
 
             reservationService.deleteReservation(selected.getReservationId());
             loadReservations();
-            clearFields();
+            clearForm();
             info("Reservation deleted");
 
         } catch (Exception e) {
@@ -127,15 +135,18 @@ public class ReservationController {
         }
     }
 
-    // ================= BUSINESS LOGIC =================
+    /* ===================== BUSINESS ===================== */
 
     @FXML
     private void confirmReservation() {
         try {
             ReservationDTO r = getSelected();
+            if (r == null) return;
+
             reservationService.confirmReservation(r.getReservationId());
             loadReservations();
             info("Reservation confirmed");
+
         } catch (Exception e) {
             error(e.getMessage());
         }
@@ -145,27 +156,33 @@ public class ReservationController {
     private void cancelReservation() {
         try {
             ReservationDTO r = getSelected();
+            if (r == null) return;
+
             reservationService.cancelReservation(r.getReservationId());
             loadReservations();
             info("Reservation cancelled");
+
         } catch (Exception e) {
             error(e.getMessage());
         }
     }
 
-//    @FXML
-//    private void createRental() {
-//        try {
-//            ReservationDTO r = getSelected();
-//            reservationService.createRentalFromReservation(r.getReservationId());
-//            loadReservations();
-//            info("Rental created");
-//        } catch (Exception e) {
-//            error(e.getMessage());
-//        }
-//    }
+    @FXML
+    private void createRental() {
+        try {
+            ReservationDTO r = getSelected();
+            if (r == null) return;
 
-    // ================= HELPERS =================
+            reservationService.createRentalFromReservation(r.getReservationId());
+            loadReservations();
+            info("Rental created from reservation");
+
+        } catch (Exception e) {
+            error(e.getMessage());
+        }
+    }
+
+    /* ===================== HELPERS ===================== */
 
     private void populateForm(ReservationDTO r) {
         if (r == null) return;
@@ -202,7 +219,7 @@ public class ReservationController {
         }
     }
 
-    private void clearFields() {
+    private void clearForm() {
         txtReservationId.clear();
         txtCustomerId.clear();
         txtEquipmentId.clear();

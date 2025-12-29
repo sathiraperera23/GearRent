@@ -42,10 +42,7 @@ ReservationService reservationService = new ReservationServiceImpl();
                 return new RentalServiceImpl();
 
             case RESERVATION:
-                if (reservationService == null) {
-                    reservationService = new ReservationServiceImpl();
-                }
-                return reservationService;
+              return new ReservationServiceImpl();
 
 
             case CONFIG:

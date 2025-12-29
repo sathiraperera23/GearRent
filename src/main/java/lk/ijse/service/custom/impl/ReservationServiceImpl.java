@@ -9,8 +9,10 @@ import lk.ijse.entity.Reservation;
 import lk.ijse.service.custom.ConfigService;
 import lk.ijse.service.custom.RentalService;
 import lk.ijse.service.custom.ReservationService;
+import lk.ijse.db.DBConnection;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -22,12 +24,10 @@ public class ReservationServiceImpl implements ReservationService {
             (ReservationDAO) DAOFactory.getInstance()
                     .getDAO(DAOFactory.DAOTypes.RESERVATION);
 
-    // 🔥 injected later (NO ServiceFactory here)
     private RentalService rentalService;
     private ConfigService configService;
 
     /* ===================== DEPENDENCY INJECTION ===================== */
-
     public void setRentalService(RentalService rentalService) {
         this.rentalService = rentalService;
     }
@@ -37,10 +37,8 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     /* ===================== CRUD ===================== */
-
     @Override
     public boolean saveReservation(ReservationDTO dto) throws Exception {
-
         validateDates(dto.getReservedFrom(), dto.getReservedTo());
         validatePrice(dto.getTotalPrice());
 
@@ -69,7 +67,6 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public boolean updateReservation(ReservationDTO dto) throws Exception {
-
         Reservation existing = reservationDAO.find(dto.getReservationId());
         if (existing == null) return false;
 
@@ -105,16 +102,12 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public ReservationDTO searchReservation(long id) throws Exception {
-
         Reservation r = reservationDAO.find(id);
-        if (r == null) return null;
-
-        return mapToDTO(r);
+        return r != null ? mapToDTO(r) : null;
     }
 
     @Override
     public List<ReservationDTO> getAllReservations() throws Exception {
-
         List<ReservationDTO> list = new ArrayList<>();
         for (Reservation r : reservationDAO.findAll()) {
             list.add(mapToDTO(r));
@@ -126,7 +119,6 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public boolean confirmReservation(long reservationId) throws Exception {
-
         ReservationDTO reservation = searchReservation(reservationId);
         if (reservation == null) return false;
 
@@ -142,7 +134,6 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public boolean cancelReservation(long reservationId) throws Exception {
-
         ReservationDTO reservation = searchReservation(reservationId);
         if (reservation == null) return false;
 
@@ -150,32 +141,74 @@ public class ReservationServiceImpl implements ReservationService {
         return updateReservation(reservation);
     }
 
-//    @Override
-//    public boolean createRentalFromReservation(long reservationId) throws Exception {
-//
-//        ReservationDTO reservation = searchReservation(reservationId);
-//        if (reservation == null) return false;
-//
-//        if (!"Confirmed".equals(reservation.getStatus())) return false;
-//
-//        RentalDTO rental = new RentalDTO(
-//                0,
-//                reservation.getCustomerId(),
-//                reservation.getEquipmentId(),
-//                reservation.getReservedFrom(),
-//                reservation.getReservedTo(),
-//                reservation.getTotalPrice(),
-//                reservation.getTotalPrice(),
-//                reservationId,
-//                "Open",
-//                null
-//        );
-//
-//        if (!rentalService.saveRental(rental)) return false;
-//
-//        reservation.setStatus("Completed");
-//        return updateReservation(reservation);
-//    }
+    /**
+     * Converts a confirmed reservation to a rental atomically
+     */
+    @Override
+    public boolean createRentalFromReservation(long reservationId) throws Exception {
+        try (Connection conn = DBConnection.getInstance().getConnection()) {
+            conn.setAutoCommit(false);
+
+            ReservationDTO reservation = searchReservation(reservationId);
+            if (reservation == null)
+                throw new IllegalStateException("Reservation not found");
+
+            if (!"Confirmed".equals(reservation.getStatus()))
+                throw new IllegalStateException(
+                        "Only confirmed reservations can be converted to rentals"
+                );
+
+            // Re-check availability at conversion time
+            boolean available = reservationDAO.isEquipmentAvailable(
+                    reservation.getEquipmentId(),
+                    java.sql.Date.valueOf(reservation.getReservedFrom()),
+                    java.sql.Date.valueOf(reservation.getReservedTo()),
+                    reservation.getReservationId()
+            );
+
+            if (!available)
+                throw new IllegalStateException(
+                        "Equipment is no longer available"
+                );
+
+            // Calculate rental days
+            long days = java.time.temporal.ChronoUnit.DAYS.between(
+                    reservation.getReservedFrom(),
+                    reservation.getReservedTo()
+            ) + 1;
+
+            BigDecimal dailyPrice =
+                    reservation.getTotalPrice()
+                            .divide(BigDecimal.valueOf(days), BigDecimal.ROUND_HALF_UP);
+
+            // Create RentalDTO
+            RentalDTO rental = new RentalDTO();
+            rental.setCustomerId(reservation.getCustomerId());
+            rental.setEquipmentId(reservation.getEquipmentId());
+            rental.setRentedFrom(reservation.getReservedFrom());
+            rental.setRentedTo(reservation.getReservedTo());
+            rental.setDailyPrice(dailyPrice);
+            rental.setSecurityDeposit(reservation.getTotalPrice());
+            rental.setReservationId(reservationId);
+            rental.setStatus("Active");
+            rental.setPaymentStatus("Unpaid");
+            rental.setDamageCharge(BigDecimal.ZERO);
+
+            // Save rental using RentalService (transactional)
+            boolean saved = rentalService.saveRental(rental);
+            if (!saved) throw new IllegalStateException("Failed to create rental");
+
+            // Update reservation status
+            reservation.setStatus("Completed");
+            boolean updated = updateReservation(reservation);
+            if (!updated) throw new IllegalStateException("Failed to update reservation");
+
+            conn.commit();
+            return true;
+        } catch (Exception e) {
+            throw e;
+        }
+    }
 
     /* ===================== HELPERS ===================== */
 
@@ -206,7 +239,6 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     private boolean isValidStatusTransition(String oldStatus, String newStatus) {
-
         switch (oldStatus) {
             case "Pending":
                 return "Confirmed".equals(newStatus) || "Cancelled".equals(newStatus);

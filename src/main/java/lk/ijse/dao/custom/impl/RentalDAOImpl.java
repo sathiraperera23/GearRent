@@ -1,162 +1,160 @@
 package lk.ijse.dao.custom.impl;
 
+import lk.ijse.dao.CrudUtil;
 import lk.ijse.dao.custom.RentalDAO;
-import lk.ijse.db.DBConnection;
 import lk.ijse.entity.Rental;
 
-import java.math.BigDecimal;
-import java.sql.*;
+import java.sql.Date;
+import java.sql.ResultSet;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RentalDAOImpl implements RentalDAO {
 
+    /* ===================== SAVE ===================== */
     @Override
-    public boolean save(Rental rental) throws Exception {
-        String sql = "INSERT INTO rentals(customer_id, equipment_id, rented_from, rented_to, actual_return, daily_price, security_deposit, reservation_id, status, total_amount, discount, final_amount, payment_status, damage_charge) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DBConnection.getInstance().getConnection();
-             PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+    public boolean save(Rental r) throws Exception {
+        String sql = "INSERT INTO rentals (" +
+                "customer_id, equipment_id, branch_id, rented_from, rented_to, " +
+                "daily_price, security_deposit, reservation_id, status, " +
+                "total_amount, discount, final_amount, payment_status, damage_charge, damage_description" +
+                ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-            pstm.setLong(1, rental.getCustomerId());
-            pstm.setLong(2, rental.getEquipmentId());
-            pstm.setDate(3, Date.valueOf(rental.getRentedFrom()));
-            pstm.setDate(4, Date.valueOf(rental.getRentedTo()));
-            if (rental.getActualReturn() != null)
-                pstm.setDate(5, Date.valueOf(rental.getActualReturn()));
-            else
-                pstm.setNull(5, Types.DATE);
-            pstm.setBigDecimal(6, rental.getDailyPrice());
-            pstm.setBigDecimal(7, rental.getSecurityDeposit());
-            if (rental.getReservationId() != null)
-                pstm.setLong(8, rental.getReservationId());
-            else
-                pstm.setNull(8, Types.BIGINT);
-            pstm.setString(9, rental.getStatus());
-            pstm.setBigDecimal(10, rental.getTotalAmount());
-            pstm.setBigDecimal(11, rental.getDiscount());
-            pstm.setBigDecimal(12, rental.getFinalAmount());
-            pstm.setString(13, rental.getPaymentStatus());
-            pstm.setBigDecimal(14, rental.getDamageCharge() != null ? rental.getDamageCharge() : BigDecimal.ZERO);
-
-            int affectedRows = pstm.executeUpdate();
-            if (affectedRows > 0) {
-                ResultSet keys = pstm.getGeneratedKeys();
-                if (keys.next()) rental.setRentalId(keys.getLong(1));
-                return true;
-            }
-            return false;
-        }
+        return CrudUtil.executeUpdate(
+                sql,
+                r.getCustomerId(),
+                r.getEquipmentId(),
+                r.getBranchId(),
+                r.getRentedFrom(),
+                r.getRentedTo(),
+                r.getDailyPrice(),
+                r.getSecurityDeposit(),
+                r.getReservationId(),
+                r.getStatus(),
+                r.getTotalAmount(),
+                r.getDiscount(),
+                r.getFinalAmount(),
+                r.getPaymentStatus(),
+                r.getDamageCharge(),
+                r.getDamageDescription()
+        );
     }
 
+    /* ===================== UPDATE ===================== */
     @Override
-    public boolean update(Rental rental) throws Exception {
-        String sql = "UPDATE rentals SET customer_id=?, equipment_id=?, rented_from=?, rented_to=?, actual_return=?, daily_price=?, security_deposit=?, reservation_id=?, status=?, total_amount=?, discount=?, final_amount=?, payment_status=?, damage_charge=? WHERE rental_id=?";
-        try (Connection conn = DBConnection.getInstance().getConnection();
-             PreparedStatement pstm = conn.prepareStatement(sql)) {
+    public boolean update(Rental r) throws Exception {
+        String sql = "UPDATE rentals SET " +
+                "customer_id=?, equipment_id=?, branch_id=?, rented_from=?, rented_to=?, " +
+                "actual_return=?, daily_price=?, security_deposit=?, reservation_id=?, status=?, " +
+                "total_amount=?, discount=?, final_amount=?, payment_status=?, damage_charge=?, damage_description=? " +
+                "WHERE rental_id=?";
 
-            pstm.setLong(1, rental.getCustomerId());
-            pstm.setLong(2, rental.getEquipmentId());
-            pstm.setDate(3, Date.valueOf(rental.getRentedFrom()));
-            pstm.setDate(4, Date.valueOf(rental.getRentedTo()));
-            if (rental.getActualReturn() != null)
-                pstm.setDate(5, Date.valueOf(rental.getActualReturn()));
-            else
-                pstm.setNull(5, Types.DATE);
-            pstm.setBigDecimal(6, rental.getDailyPrice());
-            pstm.setBigDecimal(7, rental.getSecurityDeposit());
-            if (rental.getReservationId() != null)
-                pstm.setLong(8, rental.getReservationId());
-            else
-                pstm.setNull(8, Types.BIGINT);
-            pstm.setString(9, rental.getStatus());
-            pstm.setBigDecimal(10, rental.getTotalAmount());
-            pstm.setBigDecimal(11, rental.getDiscount());
-            pstm.setBigDecimal(12, rental.getFinalAmount());
-            pstm.setString(13, rental.getPaymentStatus());
-            pstm.setBigDecimal(14, rental.getDamageCharge() != null ? rental.getDamageCharge() : BigDecimal.ZERO);
-            pstm.setLong(15, rental.getRentalId());
-
-            return pstm.executeUpdate() > 0;
-        }
+        return CrudUtil.executeUpdate(
+                sql,
+                r.getCustomerId(),
+                r.getEquipmentId(),
+                r.getBranchId(),
+                r.getRentedFrom(),
+                r.getRentedTo(),
+                r.getActualReturn(),
+                r.getDailyPrice(),
+                r.getSecurityDeposit(),
+                r.getReservationId(),
+                r.getStatus(),
+                r.getTotalAmount(),
+                r.getDiscount(),
+                r.getFinalAmount(),
+                r.getPaymentStatus(),
+                r.getDamageCharge(),
+                r.getDamageDescription(),
+                r.getRentalId()
+        );
     }
 
+    /* ===================== DELETE ===================== */
     @Override
-    public boolean delete(Long rentalId) throws Exception {
+    public boolean delete(Long id) throws Exception {
         String sql = "DELETE FROM rentals WHERE rental_id=?";
-        try (Connection conn = DBConnection.getInstance().getConnection();
-             PreparedStatement pstm = conn.prepareStatement(sql)) {
-            pstm.setLong(1, rentalId);
-            return pstm.executeUpdate() > 0;
-        }
+        return CrudUtil.executeUpdate(sql, id);
     }
 
+    /* ===================== FIND BY ID ===================== */
     @Override
-    public Rental find(Long rentalId) throws Exception {
+    public Rental find(Long id) throws Exception {
         String sql = "SELECT * FROM rentals WHERE rental_id=?";
-        try (Connection conn = DBConnection.getInstance().getConnection();
-             PreparedStatement pstm = conn.prepareStatement(sql)) {
+        ResultSet rs = CrudUtil.executeQuery(sql, id);
 
-            pstm.setLong(1, rentalId);
-            ResultSet rs = pstm.executeQuery();
-            if (rs.next()) return extractRental(rs);
-            return null;
-        }
+        if (rs.next()) return mapRow(rs);
+        return null;
     }
 
+    /* ===================== FIND ALL ===================== */
     @Override
     public List<Rental> findAll() throws Exception {
         String sql = "SELECT * FROM rentals";
-        List<Rental> list = new ArrayList<>();
-        try (Connection conn = DBConnection.getInstance().getConnection();
-             Statement stm = conn.createStatement();
-             ResultSet rs = stm.executeQuery(sql)) {
+        ResultSet rs = CrudUtil.executeQuery(sql);
 
-            while (rs.next()) {
-                list.add(extractRental(rs));
-            }
+        List<Rental> list = new ArrayList<>();
+        while (rs.next()) {
+            list.add(mapRow(rs));
         }
         return list;
     }
 
+    /* ===================== FIND OVERDUE ===================== */
     @Override
     public List<Rental> findOverdueRentals(LocalDate today) throws Exception {
-        String sql = "SELECT * FROM rentals WHERE rented_to < ? AND status='Open'";
-        List<Rental> list = new ArrayList<>();
-        try (Connection conn = DBConnection.getInstance().getConnection();
-             PreparedStatement pstm = conn.prepareStatement(sql)) {
+        String sql = "SELECT * FROM rentals WHERE status='Active' AND rented_to < ?";
+        ResultSet rs = CrudUtil.executeQuery(sql, today);
 
-            pstm.setDate(1, Date.valueOf(today));
-            ResultSet rs = pstm.executeQuery();
-            while (rs.next()) {
-                list.add(extractRental(rs));
-            }
+        List<Rental> list = new ArrayList<>();
+        while (rs.next()) {
+            list.add(mapRow(rs));
         }
         return list;
     }
 
-    private Rental extractRental(ResultSet rs) throws SQLException {
-        Rental r = new Rental();
-        r.setRentalId(rs.getLong("rental_id"));
-        r.setCustomerId(rs.getLong("customer_id"));
-        r.setEquipmentId(rs.getLong("equipment_id"));
-        r.setRentedFrom(rs.getDate("rented_from").toLocalDate());
-        r.setRentedTo(rs.getDate("rented_to").toLocalDate());
-        Date actualReturn = rs.getDate("actual_return");
-        r.setActualReturn(actualReturn != null ? actualReturn.toLocalDate() : null);
-        r.setDailyPrice(rs.getBigDecimal("daily_price"));
-        r.setSecurityDeposit(rs.getBigDecimal("security_deposit"));
-        long resId = rs.getLong("reservation_id");
-        r.setReservationId(rs.wasNull() ? null : resId);
-        r.setStatus(rs.getString("status"));
-        Timestamp ts = rs.getTimestamp("created_at");
-        r.setCreatedAt(ts != null ? ts.toLocalDateTime() : null);
-        r.setTotalAmount(rs.getBigDecimal("total_amount"));
-        r.setDiscount(rs.getBigDecimal("discount"));
-        r.setFinalAmount(rs.getBigDecimal("final_amount"));
-        r.setPaymentStatus(rs.getString("payment_status"));
-        r.setDamageCharge(rs.getBigDecimal("damage_charge"));
-        return r;
+    /* ===================== EQUIPMENT AVAILABILITY ===================== */
+    @Override
+    public boolean isEquipmentAvailable(long equipmentId, LocalDate from, LocalDate to, Long excludeRentalId) throws Exception {
+        String sql = "SELECT COUNT(*) FROM rentals " +
+                "WHERE equipment_id=? AND status IN ('Active','Overdue') " +
+                "AND NOT (? > rented_to OR ? < rented_from)";
+
+        if (excludeRentalId != null) {
+            sql += " AND rental_id <> ?";
+            ResultSet rs = CrudUtil.executeQuery(sql, equipmentId, from, to, excludeRentalId);
+            rs.next();
+            return rs.getInt(1) == 0;
+        } else {
+            ResultSet rs = CrudUtil.executeQuery(sql, equipmentId, from, to);
+            rs.next();
+            return rs.getInt(1) == 0;
+        }
+    }
+
+    /* ===================== HELPER ===================== */
+    private Rental mapRow(ResultSet rs) throws Exception {
+        return new Rental(
+                rs.getLong("rental_id"),
+                rs.getLong("customer_id"),
+                rs.getLong("equipment_id"),
+                rs.getLong("branch_id"),
+                rs.getDate("rented_from").toLocalDate(),
+                rs.getDate("rented_to").toLocalDate(),
+                rs.getDate("actual_return") != null ? rs.getDate("actual_return").toLocalDate() : null,
+                rs.getBigDecimal("daily_price"),
+                rs.getBigDecimal("security_deposit"),
+                rs.getObject("reservation_id") != null ? rs.getLong("reservation_id") : null,
+                rs.getString("status"),
+                null,
+                rs.getBigDecimal("total_amount"),
+                rs.getBigDecimal("discount"),
+                rs.getBigDecimal("final_amount"),
+                rs.getString("payment_status"),
+                rs.getBigDecimal("damage_charge"),
+                rs.getString("damage_description")
+        );
     }
 }
