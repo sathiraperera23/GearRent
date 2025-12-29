@@ -48,15 +48,24 @@ public class DashboardController {
         loadView("/view/rental.fxml", event);
     }
 
-    @FXML
-    public void openReports(ActionEvent event) {
-        loadView("/view/report.fxml", event);
-    }
 
     @FXML
     public void logout(ActionEvent event) {
         loadView("/view/login.fxml", event);
     }
+
+    /* ===================== NEW: BRANCHES BUTTON ===================== */
+
+    @FXML
+    public void openBranches(ActionEvent event) {
+        loadView("/view/branch.fxml", event);
+    }
+
+    @FXML
+    public void openReports(ActionEvent event) {
+        loadView("/view/report/report_selection.fxml", event);
+    }
+
 
     /* ===================== VIEW LOADER ===================== */
 

@@ -20,6 +20,8 @@ module lk.ijse {
     opens lk.ijse.controller.reservation to javafx.fxml;
     opens lk.ijse.controller.customer to javafx.fxml;
     opens lk.ijse.controller.equipment to javafx.fxml;
+    opens lk.ijse.controller.branch to javafx.fxml;
+    opens lk.ijse.controller.report to javafx.fxml;
 
     opens lk.ijse.dto to javafx.base;
 

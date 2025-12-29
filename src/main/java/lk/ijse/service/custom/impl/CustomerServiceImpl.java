@@ -87,4 +87,16 @@ public class CustomerServiceImpl implements CustomerService {
         for (Customer c : customerDAO.findCustomersWithActiveRentals()) list.add(toDTO(c));
         return list;
     }
+
+    @Override
+    public List<CustomerDTO> getCustomersByFilter(String filter, String startDate, String endDate) throws Exception {
+        // Assuming your DAO supports a findByFilter method
+        List<Customer> customers = customerDAO.findByFilter(filter, startDate, endDate);
+        List<CustomerDTO> dtoList = new ArrayList<>();
+        for (Customer c : customers) {
+            dtoList.add(toDTO(c));
+        }
+        return dtoList;
+    }
+
 }

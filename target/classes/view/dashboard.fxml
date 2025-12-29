@@ -41,6 +41,10 @@
                     onAction="#openRentals"
                     prefHeight="40"/>
 
+            <Button text="Branches"
+                    onAction="#openBranches"
+                    prefHeight="40"/>  <!-- Added this button -->
+
             <Button text="Reports"
                     onAction="#openReports"
                     prefHeight="40"/>

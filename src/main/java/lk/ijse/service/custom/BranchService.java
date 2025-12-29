@@ -11,4 +11,6 @@ public interface BranchService extends SuperService {
     boolean deleteBranch(int branchId) throws Exception;
     BranchDTO getBranch(int branchId) throws Exception;
     List<BranchDTO> getAllBranches() throws Exception;
+    List<BranchDTO> getBranchesByFilter(String codeOrName, String startDate, String endDate) throws Exception;
+    int getBranchCount() throws Exception;
 }

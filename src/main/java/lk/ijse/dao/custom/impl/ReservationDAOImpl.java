@@ -59,7 +59,6 @@ public class ReservationDAOImpl implements ReservationDAO {
 
     @Override
     public boolean delete(Long id) throws Exception {
-
         String sql = "DELETE FROM reservations WHERE reservation_id = ?";
         return CrudUtil.executeUpdate(sql, id);
     }
@@ -72,10 +71,7 @@ public class ReservationDAOImpl implements ReservationDAO {
         String sql = "SELECT * FROM reservations WHERE reservation_id = ?";
         ResultSet rs = CrudUtil.executeQuery(sql, id);
 
-        if (rs.next()) {
-            return mapRow(rs);
-        }
-        return null;
+        return rs.next() ? mapRow(rs) : null;
     }
 
     /* ===================== FIND ALL ===================== */
@@ -104,8 +100,7 @@ public class ReservationDAOImpl implements ReservationDAO {
     ) throws Exception {
 
         String sql =
-                "SELECT COUNT(*) " +
-                        "FROM reservations " +
+                "SELECT COUNT(*) FROM reservations " +
                         "WHERE equipment_id = ? " +
                         "AND status IN ('Pending','Confirmed') " +
                         "AND NOT (? > reserved_to OR ? < reserved_from)";
@@ -126,7 +121,35 @@ public class ReservationDAOImpl implements ReservationDAO {
         return rs.getInt(1) == 0;
     }
 
-    /* ===================== HELPER ===================== */
+    /* ===================== FILTER SEARCH ===================== */
+
+    @Override
+    public List<Reservation> findByFilter(String filter, Date startDate, Date endDate) throws Exception {
+        String sql =
+                "SELECT r.* FROM reservations r " +
+                        "JOIN customers c ON r.customer_id = c.customer_id " +
+                        "JOIN equipment e ON r.equipment_id = e.equipment_id " +
+                        "WHERE (c.name LIKE ? OR e.brand LIKE ? OR e.model LIKE ?) " +
+                        "AND r.created_at BETWEEN ? AND ?";
+
+        ResultSet rs = CrudUtil.executeQuery(
+                sql,
+                "%" + filter + "%",
+                "%" + filter + "%",
+                "%" + filter + "%",
+                startDate,
+                endDate
+        );
+
+        List<Reservation> list = new ArrayList<>();
+        while (rs.next()) {
+            list.add(mapRow(rs));
+        }
+        return list;
+    }
+
+
+    /* ===================== ROW MAPPER ===================== */
 
     private Reservation mapRow(ResultSet rs) throws Exception {
 

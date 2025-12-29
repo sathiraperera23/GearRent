@@ -3,6 +3,7 @@ package lk.ijse.service.custom;
 import lk.ijse.dto.ReservationDTO;
 import lk.ijse.service.SuperService;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface ReservationService extends SuperService {
@@ -21,22 +22,17 @@ public interface ReservationService extends SuperService {
 
     /* ================= BUSINESS OPERATIONS ================= */
 
-    /**
-     * Confirm a pending reservation
-     * (validates deposit limit, availability, etc.)
-     */
     boolean confirmReservation(long reservationId) throws Exception;
 
-    /**
-     * Cancel a reservation
-     */
     boolean cancelReservation(long reservationId) throws Exception;
 
-    /**
-     * Convert a confirmed reservation into an active rental.
-     * - Rechecks equipment availability
-     * - Creates rental
-     * - Marks reservation as completed
-     */
     boolean createRentalFromReservation(long reservationId) throws Exception;
+
+    /* ================= REPORTING ================= */
+
+    List<ReservationDTO> getReservationsByFilter(
+            String filter,
+            LocalDate startDate,
+            LocalDate endDate
+    ) throws Exception;
 }

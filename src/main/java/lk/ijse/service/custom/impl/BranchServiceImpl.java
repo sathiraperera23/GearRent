@@ -77,4 +77,28 @@ public class BranchServiceImpl implements BranchService {
         }
         return dtoList;
     }
+
+    @Override
+    public List<BranchDTO> getBranchesByFilter(String codeOrName, String startDate, String endDate) throws Exception {
+        List<Branch> branches = branchDAO.findByFilter(codeOrName, startDate, endDate);
+        List<BranchDTO> dtoList = new ArrayList<>();
+        for (Branch b : branches) {
+            dtoList.add(new BranchDTO(
+                    b.getBranchId(),
+                    b.getCode(),
+                    b.getName(),
+                    b.getAddress(),
+                    b.getContact(),
+                    b.getCreatedAt()
+            ));
+        }
+        return dtoList;
+    }
+
+    @Override
+    public int getBranchCount() throws Exception {
+        return branchDAO.getBranchCount();
+    }
+
+
 }

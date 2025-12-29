@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="lk.ijse.controller.branch.BranchController"
+            style="-fx-padding: 15;">
+
+    <top>
+        <HBox spacing="10">
+            <TextField fx:id="txtCode" promptText="Code" prefWidth="100"/>
+            <TextField fx:id="txtName" promptText="Name" prefWidth="150"/>
+            <TextField fx:id="txtAddress" promptText="Address" prefWidth="200"/>
+            <TextField fx:id="txtContact" promptText="Contact" prefWidth="120"/>
+            <Button text="Add" onAction="#addBranch"/>
+            <Button text="Update" onAction="#updateBranch"/>
+            <Button text="Delete" onAction="#deleteBranch"/>
+            <Button text="Clear" onAction="#clearFields"/>
+        </HBox>
+    </top>
+
+    <center>
+        <TableView fx:id="tblBranches" prefHeight="400" prefWidth="800">
+            <columns>
+                <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+                <TableColumn fx:id="colCode" text="Code" prefWidth="100"/>
+                <TableColumn fx:id="colName" text="Name" prefWidth="150"/>
+                <TableColumn fx:id="colAddress" text="Address" prefWidth="200"/>
+                <TableColumn fx:id="colContact" text="Contact" prefWidth="120"/>
+                <TableColumn fx:id="colCreatedAt" text="Created At" prefWidth="150"/>
+            </columns>
+        </TableView>
+    </center>
+</BorderPane>

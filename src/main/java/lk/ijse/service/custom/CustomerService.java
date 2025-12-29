@@ -21,4 +21,7 @@ public interface CustomerService extends SuperService {
     BigDecimal getTotalActiveDeposits(long customerId) throws Exception;
 
     List<CustomerDTO> getCustomersWithActiveRentals() throws Exception;
+
+    List<CustomerDTO> getCustomersByFilter(String filter, String startDate, String endDate) throws Exception;
+
 }

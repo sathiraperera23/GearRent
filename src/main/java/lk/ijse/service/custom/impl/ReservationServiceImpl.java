@@ -248,4 +248,27 @@ public class ReservationServiceImpl implements ReservationService {
                 return false;
         }
     }
+
+    @Override
+    public List<ReservationDTO> getReservationsByFilter(
+            String filter,
+            LocalDate startDate,
+            LocalDate endDate
+    ) throws Exception {
+
+        Date sqlStart = (startDate != null) ? Date.valueOf(startDate) : null;
+        Date sqlEnd   = (endDate != null)   ? Date.valueOf(endDate)   : null;
+
+        List<Reservation> reservations =
+                reservationDAO.findByFilter(filter, sqlStart, sqlEnd);
+
+        List<ReservationDTO> dtoList = new ArrayList<>();
+        for (Reservation r : reservations) {
+            dtoList.add(mapToDTO(r));
+        }
+        return dtoList;
+    }
+
+
+
 }

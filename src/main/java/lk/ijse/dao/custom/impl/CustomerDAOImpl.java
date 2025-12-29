@@ -137,4 +137,28 @@ public class CustomerDAOImpl implements CustomerDAO {
         c.setCreatedAt(rs.getTimestamp("created_at"));
         return c;
     }
+
+    @Override
+    public List<Customer> findByFilter(String filter, String startDate, String endDate) throws Exception {
+        String sql = "SELECT * FROM customers WHERE (name LIKE ? OR email LIKE ?) AND created_at BETWEEN ? AND ?";
+        List<Customer> list = new ArrayList<>();
+
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement pstm = conn.prepareStatement(sql)) {
+
+            pstm.setString(1, "%" + filter + "%");
+            pstm.setString(2, "%" + filter + "%");
+            pstm.setString(3, startDate);
+            pstm.setString(4, endDate);
+
+            try (ResultSet rs = pstm.executeQuery()) {
+                while (rs.next()) {
+                    list.add(extractCustomer(rs));
+                }
+            }
+        }
+
+        return list;
+    }
+
 }

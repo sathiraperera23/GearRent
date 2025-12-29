@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<BorderPane xmlns="http://javafx.com/javafx/13"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="lk.ijse.controller.report.ReservationReportController">
+
+    <top>
+        <HBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <TextField fx:id="txtFilter" promptText="Search by Customer ID/Equipment ID"/>
+            <DatePicker fx:id="dpStartDate" promptText="Start Date"/>
+            <DatePicker fx:id="dpEndDate" promptText="End Date"/>
+            <Button text="Search" onAction="#searchReservations"/>
+        </HBox>
+    </top>
+
+    <center>
+        <TableView fx:id="tblReservations" prefHeight="400" prefWidth="900">
+            <columns>
+                <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+                <TableColumn fx:id="colCustomerId" text="Customer ID" prefWidth="100"/>
+                <TableColumn fx:id="colEquipmentId" text="Equipment ID" prefWidth="100"/>
+                <TableColumn fx:id="colFrom" text="From" prefWidth="100"/>
+                <TableColumn fx:id="colTo" text="To" prefWidth="100"/>
+                <TableColumn fx:id="colPrice" text="Price" prefWidth="100"/>
+                <TableColumn fx:id="colStatus" text="Status" prefWidth="80"/>
+                <TableColumn fx:id="colCreatedAt" text="Created At" prefWidth="120"/>
+            </columns>
+        </TableView>
+    </center>
+</BorderPane>

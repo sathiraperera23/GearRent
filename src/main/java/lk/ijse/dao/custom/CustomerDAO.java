@@ -14,4 +14,7 @@ public interface CustomerDAO extends CrudDAO<Customer, Long> {
     BigDecimal getTotalActiveDeposits(long customerId) throws Exception;
 
     List<Customer> findCustomersWithActiveRentals() throws Exception;
+
+    List<Customer> findByFilter(String filter, String startDate, String endDate) throws Exception;
+
 }

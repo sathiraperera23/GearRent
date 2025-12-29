@@ -69,4 +69,39 @@ public class BranchDAOImpl implements BranchDAO {
         }
         return list;
     }
+
+    @Override
+    public List<Branch> findByFilter(String codeOrName, String startDate, String endDate) throws Exception {
+        ResultSet rst = CrudUtil.executeQuery(
+                "SELECT * FROM branches " +
+                        "WHERE (code LIKE ? OR name LIKE ?) " +
+                        "AND created_at BETWEEN ? AND ? " +
+                        "ORDER BY created_at DESC",
+                "%" + codeOrName + "%", "%" + codeOrName + "%", startDate, endDate
+        );
+
+        List<Branch> list = new ArrayList<>();
+        while (rst.next()) {
+            list.add(new Branch(
+                    rst.getInt("branch_id"),
+                    rst.getString("code"),
+                    rst.getString("name"),
+                    rst.getString("address"),
+                    rst.getString("contact"),
+                    rst.getTimestamp("created_at")
+            ));
+        }
+        return list;
+    }
+
+    @Override
+    public int getBranchCount() throws Exception {
+        ResultSet rst = CrudUtil.executeQuery("SELECT COUNT(*) AS total FROM branches");
+        if (rst.next()) {
+            return rst.getInt("total");
+        }
+        return 0;
+    }
+
+
 }
