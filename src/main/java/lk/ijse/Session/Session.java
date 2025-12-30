@@ -1,4 +1,4 @@
-package lk.ijse.util;
+package lk.ijse.Session;
 
 import lk.ijse.dto.UserDTO;
 
