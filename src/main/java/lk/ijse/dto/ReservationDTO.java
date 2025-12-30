@@ -16,7 +16,6 @@ public class ReservationDTO {
 
     public ReservationDTO() {}
 
-    // Full constructor
     public ReservationDTO(long reservationId, long customerId, long equipmentId,
                           LocalDate reservedFrom, LocalDate reservedTo,
                           BigDecimal totalPrice, String status, Timestamp createdAt) {
@@ -30,7 +29,6 @@ public class ReservationDTO {
         this.createdAt = createdAt;
     }
 
-    // Short constructor for creating new reservation
     public ReservationDTO(long customerId, long equipmentId, LocalDate reservedFrom, LocalDate reservedTo, BigDecimal totalPrice) {
         this.customerId = customerId;
         this.equipmentId = equipmentId;
@@ -40,7 +38,6 @@ public class ReservationDTO {
         this.status = "Pending";
     }
 
-    // Getters and setters
     public long getReservationId() { return reservationId; }
     public void setReservationId(long reservationId) { this.reservationId = reservationId; }
     public long getCustomerId() { return customerId; }

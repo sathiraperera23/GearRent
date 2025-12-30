@@ -8,9 +8,16 @@
             fx:controller="lk.ijse.controller.rental.OverdueRentalsController">
 
     <top>
-        <Label text="Overdue Rentals"
-               style="-fx-font-size:18; -fx-font-weight:bold;"
-               BorderPane.alignment="CENTER"/>
+        <VBox spacing="10" style="-fx-padding:10;">
+            <HBox>
+                <Button text="⬅ Back"
+                        onAction="#backToDashboard"/>
+            </HBox>
+
+            <Label text="Overdue Rentals"
+                   style="-fx-font-size:18; -fx-font-weight:bold;"
+                   BorderPane.alignment="CENTER"/>
+        </VBox>
     </top>
 
     <center>

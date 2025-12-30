@@ -8,7 +8,12 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="lk.ijse.controller.rental.RentalController">
 
-    <TableView fx:id="tblRental" layoutX="20" layoutY="20"
+    <Button text="⬅ Back"
+            layoutX="20"
+            layoutY="10"
+            onAction="#backToDashboard"/>
+
+    <TableView fx:id="tblRental" layoutX="20" layoutY="50"
                prefWidth="1060" prefHeight="250">
         <columns>
             <TableColumn fx:id="colId" text="Rental ID" prefWidth="120"/>

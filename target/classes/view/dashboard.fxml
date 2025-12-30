@@ -10,14 +10,12 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="lk.ijse.controller.dashboard.DashboardController">
 
-    <!-- ===================== TOP ===================== -->
     <top>
         <Label fx:id="lblWelcome"
-               text="Equipment Rental Management System"
+               text="Gearrent Pro Equipment Rental Management System"
                style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-padding: 15;" />
     </top>
 
-    <!-- ===================== LEFT MENU ===================== -->
     <left>
         <VBox spacing="10"
               style="-fx-padding: 15; -fx-background-color: #F4F4F4;">
@@ -25,39 +23,51 @@
             <Label text="Dashboard"
                    style="-fx-font-size: 16px; -fx-font-weight: bold;" />
 
-            <Button text="Customers"
+            <Button fx:id="btnCustomers"
+                    text="Customers"
                     onAction="#openCustomers"
                     prefHeight="40"/>
 
-            <Button text="Equipment"
+            <Button fx:id="btnEquipment"
+                    text="Equipment"
                     onAction="#openEquipment"
                     prefHeight="40"/>
 
-            <Button text="Reservations"
+            <Button fx:id="btnReservations"
+                    text="Reservations"
                     onAction="#openReservations"
                     prefHeight="40"/>
 
-            <Button text="Rentals"
+            <Button fx:id="btnBranches"
+                    text="Branches"
+                    onAction="#openBranches"
+                    prefHeight="40"/>
+
+            <Button fx:id="btnRentals"
+                    text="Rentals"
                     onAction="#openRentals"
                     prefHeight="40"/>
 
-            <Button text="Branches"
-                    onAction="#openBranches"
-                    prefHeight="40"/>  <!-- Added this button -->
+            <Button fx:id="btnOverdueRentals"
+                    text="Overdue Rentals"
+                    onAction="#openOverdueRentals"
+                    prefHeight="40"/>
 
-            <Button text="Reports"
+            <Button fx:id="btnReports"
+                    text="Reports"
                     onAction="#openReports"
                     prefHeight="40"/>
 
-            <Button text="Logout"
+            <Button fx:id="btnLogout"
+                    text="Logout"
                     onAction="#logout"
                     prefHeight="40"
                     style="-fx-background-color: #E57373; -fx-text-fill: white;"/>
 
         </VBox>
+
     </left>
 
-    <!-- ===================== CENTER CONTENT ===================== -->
     <center>
         <AnchorPane fx:id="contentPane"
                     style="-fx-background-color: white;" />

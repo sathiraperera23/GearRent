@@ -1,10 +1,15 @@
 package lk.ijse.controller.rental;
 
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 import lk.ijse.dto.RentalDTO;
 import lk.ijse.service.ServiceFactory;
 import lk.ijse.service.custom.RentalService;
@@ -34,6 +39,26 @@ public class OverdueRentalsController {
     private final RentalService rentalService =
             (RentalService) ServiceFactory.getInstance()
                     .getService(ServiceFactory.ServiceType.RENTAL);
+
+    @FXML
+    private void backToDashboard(ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(
+                    getClass().getResource("/view/dashboard.fxml")
+            );
+
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource())
+                    .getScene().getWindow();
+
+            stage.setScene(new Scene(root));
+            stage.setTitle("GearRent | Dashboard");
+            stage.centerOnScreen();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @FXML
     public void initialize() {

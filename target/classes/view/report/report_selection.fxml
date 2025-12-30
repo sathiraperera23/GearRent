@@ -8,13 +8,22 @@
             fx:controller="lk.ijse.controller.report.ReportSelectionController"
             prefWidth="600" prefHeight="400">
 
-    <VBox spacing="15" layoutX="20" layoutY="20">
+    <Button text="⬅ Back"
+            layoutX="20"
+            layoutY="10"
+            onAction="#backToDashboard"/>
+
+    <VBox spacing="15" layoutX="20" layoutY="50">
         <Button text="Branch Report" onAction="#openBranchReport" prefWidth="200"/>
         <Button text="Customer Report" onAction="#openCustomerReport" prefWidth="200"/>
         <Button text="Reservation Report" onAction="#openReservationReport" prefWidth="200"/>
     </VBox>
 
-    <AnchorPane fx:id="contentPane" layoutX="250" layoutY="20" prefWidth="330" prefHeight="360"
+    <AnchorPane fx:id="contentPane"
+                layoutX="250"
+                layoutY="20"
+                prefWidth="330"
+                prefHeight="360"
                 style="-fx-border-color: #ccc; -fx-border-width: 1;" />
 
 </AnchorPane>

@@ -16,7 +16,6 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerDAO customerDAO =
             (CustomerDAO) DAOFactory.getInstance().getDAO(DAOFactory.DAOTypes.CUSTOMER);
 
-    /* ===================== HELPERS ===================== */
     private Customer toEntity(CustomerDTO dto) {
         return new Customer(
                 dto.getCustomerId(),
@@ -43,7 +42,6 @@ public class CustomerServiceImpl implements CustomerService {
         );
     }
 
-    /* ===================== BUSINESS ===================== */
 
     @Override
     public boolean saveCustomer(CustomerDTO dto) throws Exception {

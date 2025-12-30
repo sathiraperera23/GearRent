@@ -3,17 +3,21 @@ package lk.ijse.controller.reservation;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 import lk.ijse.dto.ReservationDTO;
 import lk.ijse.service.ServiceFactory;
 import lk.ijse.service.custom.ReservationService;
+import javafx.event.ActionEvent;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class ReservationController {
 
-    /* ===================== FORM ===================== */
     @FXML private TextField txtReservationId;
     @FXML private TextField txtCustomerId;
     @FXML private TextField txtEquipmentId;
@@ -21,7 +25,6 @@ public class ReservationController {
     @FXML private DatePicker dpFrom;
     @FXML private DatePicker dpTo;
 
-    /* ===================== TABLE ===================== */
     @FXML private TableView<ReservationDTO> tblReservation;
     @FXML private TableColumn<ReservationDTO, Long> colId;
     @FXML private TableColumn<ReservationDTO, Long> colCustomer;
@@ -31,7 +34,6 @@ public class ReservationController {
     @FXML private TableColumn<ReservationDTO, BigDecimal> colTotal;
     @FXML private TableColumn<ReservationDTO, String> colStatus;
 
-    /* ===================== BUTTONS ===================== */
     @FXML private Button btnConfirm;
     @FXML private Button btnCancel;
     @FXML private Button btnCreateRental;
@@ -40,7 +42,27 @@ public class ReservationController {
             (ReservationService) ServiceFactory.getInstance()
                     .getService(ServiceFactory.ServiceType.RESERVATION);
 
-    /* ===================== INITIALIZE ===================== */
+    @FXML
+    private void backToDashboard(ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(
+                    getClass().getResource("/view/dashboard.fxml")
+            );
+
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource())
+                    .getScene().getWindow();
+
+            stage.setScene(new Scene(root));
+            stage.setTitle("GearRent | Dashboard");
+            stage.centerOnScreen();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
     @FXML
     public void initialize() {
 
@@ -66,7 +88,6 @@ public class ReservationController {
                 .addListener((obs, old, r) -> populateForm(r));
     }
 
-    /* ===================== CRUD ===================== */
 
     @FXML
     private void addReservation() {
@@ -135,7 +156,6 @@ public class ReservationController {
         }
     }
 
-    /* ===================== BUSINESS ===================== */
 
     @FXML
     private void confirmReservation() {
@@ -182,7 +202,6 @@ public class ReservationController {
         }
     }
 
-    /* ===================== HELPERS ===================== */
 
     private void populateForm(ReservationDTO r) {
         if (r == null) return;

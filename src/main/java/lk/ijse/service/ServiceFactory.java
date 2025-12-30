@@ -48,7 +48,6 @@ ReservationService reservationService = new ReservationServiceImpl();
             case CONFIG:
                 return new ConfigServiceImpl();
 
-            // Uncomment when implemented
 
             case BRANCH:
                 return new BranchServiceImpl();

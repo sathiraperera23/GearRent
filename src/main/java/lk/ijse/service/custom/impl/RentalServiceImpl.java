@@ -23,7 +23,6 @@ public class RentalServiceImpl implements RentalService {
     private static final BigDecimal LATE_FEE_PER_DAY =
             new BigDecimal("2500");
 
-    /* ===================== MAPPERS ===================== */
 
     private Rental toEntity(RentalDTO d) {
         return new Rental(
@@ -70,7 +69,6 @@ public class RentalServiceImpl implements RentalService {
         return d;
     }
 
-    /* ===================== CREATE RENTAL (TRANSACTION) ===================== */
 
     @Override
     public boolean saveRental(RentalDTO dto) throws Exception {
@@ -122,7 +120,6 @@ public class RentalServiceImpl implements RentalService {
         return rentalDAO.update(toEntity(dto));
     }
 
-    /* ===================== RETURN / CLOSE RENTAL ===================== */
 
     @Override
     public boolean returnRental(
@@ -179,7 +176,6 @@ public class RentalServiceImpl implements RentalService {
                         "Actual return date required"
                 );
 
-            /* ===== Late fee ===== */
             long lateDays =
                     ChronoUnit.DAYS.between(
                             r.getRentedTo(),
@@ -193,7 +189,6 @@ public class RentalServiceImpl implements RentalService {
                             BigDecimal.valueOf(lateDays)
                     );
 
-            /* ===== Damage ===== */
             BigDecimal damage =
                     damageCharge != null
                             ? damageCharge
@@ -214,7 +209,6 @@ public class RentalServiceImpl implements RentalService {
                 r.setPaymentStatus("Partially Paid");
             }
 
-            /* ===== Update rental ===== */
             r.setActualReturn(actualReturn);
             r.setDamageCharge(damage);
             r.setDamageDescription(damageNote);
@@ -238,7 +232,6 @@ public class RentalServiceImpl implements RentalService {
         }
     }
 
-    /* ===================== QUERIES ===================== */
 
     @Override
     public RentalDTO findRental(long rentalId) throws Exception {
@@ -265,7 +258,6 @@ public class RentalServiceImpl implements RentalService {
         return list;
     }
 
-    /* ===================== VALIDATION ===================== */
 
     private void validateDates(LocalDate from, LocalDate to) {
 

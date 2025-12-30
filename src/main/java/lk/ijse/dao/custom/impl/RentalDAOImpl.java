@@ -12,7 +12,6 @@ import java.util.List;
 
 public class RentalDAOImpl implements RentalDAO {
 
-    /* ===================== SAVE ===================== */
     @Override
     public boolean save(Rental r) throws Exception {
         String sql = "INSERT INTO rentals (" +
@@ -41,7 +40,6 @@ public class RentalDAOImpl implements RentalDAO {
         );
     }
 
-    /* ===================== UPDATE ===================== */
     @Override
     public boolean update(Rental r) throws Exception {
         String sql = "UPDATE rentals SET " +
@@ -72,14 +70,12 @@ public class RentalDAOImpl implements RentalDAO {
         );
     }
 
-    /* ===================== DELETE ===================== */
     @Override
     public boolean delete(Long id) throws Exception {
         String sql = "DELETE FROM rentals WHERE rental_id=?";
         return CrudUtil.executeUpdate(sql, id);
     }
 
-    /* ===================== FIND BY ID ===================== */
     @Override
     public Rental find(Long id) throws Exception {
         String sql = "SELECT * FROM rentals WHERE rental_id=?";
@@ -89,7 +85,6 @@ public class RentalDAOImpl implements RentalDAO {
         return null;
     }
 
-    /* ===================== FIND ALL ===================== */
     @Override
     public List<Rental> findAll() throws Exception {
         String sql = "SELECT * FROM rentals";
@@ -102,7 +97,6 @@ public class RentalDAOImpl implements RentalDAO {
         return list;
     }
 
-    /* ===================== FIND OVERDUE ===================== */
     @Override
     public List<Rental> findOverdueRentals(LocalDate today) throws Exception {
         String sql = "SELECT * FROM rentals WHERE status='Active' AND rented_to < ?";
@@ -115,7 +109,6 @@ public class RentalDAOImpl implements RentalDAO {
         return list;
     }
 
-    /* ===================== EQUIPMENT AVAILABILITY ===================== */
     @Override
     public boolean isEquipmentAvailable(long equipmentId, LocalDate from, LocalDate to, Long excludeRentalId) throws Exception {
         String sql = "SELECT COUNT(*) FROM rentals " +
@@ -134,7 +127,6 @@ public class RentalDAOImpl implements RentalDAO {
         }
     }
 
-    /* ===================== HELPER ===================== */
     private Rental mapRow(ResultSet rs) throws Exception {
         return new Rental(
                 rs.getLong("rental_id"),

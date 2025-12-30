@@ -5,8 +5,8 @@ public class User {
     private long userId;
     private String username;
     private String password;
-    private String role;   // ADMIN / STAFF / CUSTOMER
-    private String status; // ACTIVE / INACTIVE
+    private String role;
+    private String status;
 
     public User() {}
 

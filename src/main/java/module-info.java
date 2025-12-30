@@ -11,6 +11,7 @@ module lk.ijse {
     requires javafx.controls;
     requires javafx.fxml;
     requires java.sql;
+    requires javafx.graphics;
 
     // FXML needs reflection access
     opens lk.ijse.controller.auth to javafx.fxml;

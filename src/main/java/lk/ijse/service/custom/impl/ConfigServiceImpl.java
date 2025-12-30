@@ -16,9 +16,8 @@ public class ConfigServiceImpl implements ConfigService {
 
     @Override
     public boolean saveConfig(ConfigDTO dto) throws Exception {
-        // Map DTO → Entity
         Config cfg = new Config(
-                0, // assuming auto-increment ID
+                0,
                 dto.getLateFeePerDay(),
                 dto.getMaxDeposit(),
                 dto.getRegularDiscount(),
@@ -49,10 +48,9 @@ public class ConfigServiceImpl implements ConfigService {
 
     @Override
     public ConfigDTO searchConfig(int id) throws Exception {
-        Config cfg = configDAO.find(id); // assuming DAO returns Config entity
+        Config cfg = configDAO.find(id);
         if (cfg == null) return null;
 
-        // Map entity to DTO
         ConfigDTO dto = new ConfigDTO(
                 cfg.getLateFeePerDay(),
                 cfg.getMaxDeposit(),
@@ -81,7 +79,7 @@ public class ConfigServiceImpl implements ConfigService {
 
     @Override
     public ConfigDTO getConfig() throws Exception {
-        Config cfg = configDAO.findConfig(); // retrieve the single config row
+        Config cfg = configDAO.findConfig();
         if (cfg == null) return null;
 
         return new ConfigDTO(

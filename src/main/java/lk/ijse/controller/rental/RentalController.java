@@ -4,8 +4,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 import lk.ijse.dto.RentalDTO;
 import lk.ijse.service.ServiceFactory;
 import lk.ijse.service.custom.RentalService;
@@ -15,7 +19,6 @@ import java.time.LocalDate;
 
 public class RentalController {
 
-    /* ===================== TABLE ===================== */
 
     @FXML
     private TableView<RentalDTO> tblRental;
@@ -38,7 +41,6 @@ public class RentalController {
     @FXML
     private TableColumn<RentalDTO, String> colStatus;
 
-    /* ===================== FIELDS ===================== */
 
     @FXML
     private TextField txtRentalId;
@@ -79,21 +81,37 @@ public class RentalController {
     @FXML
     private ComboBox<String> cmbStatus;
 
-    /* ===================== SERVICE ===================== */
 
     private RentalService rentalService;
 
-    /* ===================== INITIALIZE ===================== */
+
+    @FXML
+    private void backToDashboard(ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(
+                    getClass().getResource("/view/dashboard.fxml")
+            );
+
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource())
+                    .getScene().getWindow();
+
+            stage.setScene(new Scene(root));
+            stage.setTitle("GearRent | Dashboard");
+            stage.centerOnScreen();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @FXML
     public void initialize() {
 
-        // IMPORTANT: service initialized here (NOT at field level)
         rentalService =
                 (RentalService) ServiceFactory.getInstance()
                         .getService(ServiceFactory.ServiceType.RENTAL);
 
-        // Table columns
         colId.setCellValueFactory(new PropertyValueFactory<>("rentalId"));
         colCustomer.setCellValueFactory(new PropertyValueFactory<>("customerId"));
         colEquipment.setCellValueFactory(new PropertyValueFactory<>("equipmentId"));
@@ -113,7 +131,6 @@ public class RentalController {
         tableListener();
     }
 
-    /* ===================== LOAD ===================== */
 
     private void loadAllRentals() {
         try {
@@ -153,7 +170,6 @@ public class RentalController {
         cmbPayment.setValue(r.getPaymentStatus());
     }
 
-    /* ===================== BUTTON ACTIONS ===================== */
 
     @FXML
     void btnSaveOnAction(ActionEvent event) {
@@ -235,7 +251,6 @@ public class RentalController {
         }
     }
 
-    /* ===================== HELPERS ===================== */
 
     private void clearForm() {
         txtRentalId.clear();

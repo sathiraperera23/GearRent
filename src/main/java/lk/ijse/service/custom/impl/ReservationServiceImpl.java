@@ -27,7 +27,6 @@ public class ReservationServiceImpl implements ReservationService {
     private RentalService rentalService;
     private ConfigService configService;
 
-    /* ===================== DEPENDENCY INJECTION ===================== */
     public void setRentalService(RentalService rentalService) {
         this.rentalService = rentalService;
     }
@@ -36,7 +35,6 @@ public class ReservationServiceImpl implements ReservationService {
         this.configService = configService;
     }
 
-    /* ===================== CRUD ===================== */
     @Override
     public boolean saveReservation(ReservationDTO dto) throws Exception {
         validateDates(dto.getReservedFrom(), dto.getReservedTo());
@@ -210,7 +208,6 @@ public class ReservationServiceImpl implements ReservationService {
         }
     }
 
-    /* ===================== HELPERS ===================== */
 
     private ReservationDTO mapToDTO(Reservation r) {
         return new ReservationDTO(

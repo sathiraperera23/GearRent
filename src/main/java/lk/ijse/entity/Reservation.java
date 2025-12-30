@@ -27,7 +27,6 @@ public class Reservation {
         this.createdAt = createdAt;
     }
 
-    // Getters and setters
     public long getReservationId() { return reservationId; }
     public void setReservationId(long reservationId) { this.reservationId = reservationId; }
     public long getCustomerId() { return customerId; }

@@ -12,6 +12,7 @@
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
+<!--            <Button text="⬅ Back" onAction="#backToReportSelection"/>-->
             <TextField fx:id="txtFilter" promptText="Search by Customer ID/Equipment ID"/>
             <DatePicker fx:id="dpStartDate" promptText="Start Date"/>
             <DatePicker fx:id="dpEndDate" promptText="End Date"/>

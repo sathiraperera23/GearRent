@@ -32,56 +32,37 @@ public class LoginController {
             String password = txtPassword.getText().trim();
 
             if (username.isEmpty() || password.isEmpty()) {
-                showAlert(
-                        Alert.AlertType.ERROR,
-                        "Validation Error",
-                        "Username and password cannot be empty."
-                );
+                showAlert(Alert.AlertType.ERROR, "Validation Error", "Username and password cannot be empty.");
                 return;
             }
 
             UserDTO user = userService.login(username, password);
 
             if (user == null) {
-                showAlert(
-                        Alert.AlertType.ERROR,
-                        "Login Failed",
-                        "Invalid username or password."
-                );
+                showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid username or password or inactive user.");
                 return;
             }
 
-            // ✅ Login success
-            showAlert(
-                    Alert.AlertType.INFORMATION,
-                    "Login Successful",
-                    "Welcome " + user.getUsername() + "!"
-            );
-
-            // ✅ Load dashboard
+            // ✅ Load dashboard with role-based access
             Stage stage = (Stage) txtUsername.getScene().getWindow();
             loadDashboard(stage, user);
 
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert(
-                    Alert.AlertType.ERROR,
-                    "System Error",
-                    "An error occurred during login."
-            );
+            showAlert(Alert.AlertType.ERROR, "System Error", "An error occurred during login.");
         }
     }
 
     private void loadDashboard(Stage stage, UserDTO user) throws Exception {
-        FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/view/dashboard.fxml")
-        );
-
+        // Load FXML
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/dashboard.fxml"));
         Parent root = loader.load();
 
+        // Get controller and pass the logged-in user
         DashboardController controller = loader.getController();
-        controller.setLoggedUser(user);
+        controller.setLoggedUser(user); // <-- enables/disables buttons here
 
+        // Set scene
         stage.setScene(new Scene(root));
         stage.setTitle("GearRent | Dashboard");
         stage.centerOnScreen();

@@ -32,7 +32,6 @@ public class DAOFactory {
             case CONFIG:
                 return new ConfigDAOImpl();
 
-            // Uncomment when implemented
 
             case EQUIPMENT:
                 return new EquipmentDAOImpl();

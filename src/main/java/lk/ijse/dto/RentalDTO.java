@@ -16,19 +16,16 @@ public class RentalDTO {
     private Long reservationId;
     private String status;                 // Active, Returned, Overdue, Cancelled
 
-    // Payment info
     private BigDecimal totalAmount;        // total before discounts
     private BigDecimal discount;           // membership + long rental discount
     private BigDecimal finalAmount;        // totalAmount - discount
     private String paymentStatus;          // Paid / Partially Paid / Unpaid
 
-    // Damage info
     private BigDecimal damageCharge;
     private String damageDescription;
 
     public RentalDTO() {}
 
-    // Full constructor
     public RentalDTO(long rentalId, long customerId, long equipmentId, long branchId,
                      LocalDate rentedFrom, LocalDate rentedTo, LocalDate actualReturn,
                      BigDecimal dailyPrice, BigDecimal securityDeposit, Long reservationId,

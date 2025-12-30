@@ -14,7 +14,6 @@ public class CustomerDTO {
 
     public CustomerDTO() {}
 
-    // FULL constructor
     public CustomerDTO(long customerId, String name, String nicPassport, String contactNo,
                        String email, String address, String membership, Timestamp createdAt) {
         this.customerId = customerId;
@@ -27,7 +26,6 @@ public class CustomerDTO {
         this.createdAt = createdAt;
     }
 
-    // SHORT constructor (UI → Service → DAO)
     public CustomerDTO(long customerId, String name, String nicPassport, String contactNo,
                        String email, String address, String membership) {
         this.customerId = customerId;
@@ -39,7 +37,6 @@ public class CustomerDTO {
         this.membership = membership;
     }
 
-    // Getters and setters
     public long getCustomerId() { return customerId; }
     public void setCustomerId(long customerId) { this.customerId = customerId; }
 

@@ -7,13 +7,18 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 
+<?import javafx.geometry.Insets?>
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="lk.ijse.controller.report.BranchReportController"
             prefWidth="600" prefHeight="360">
 
     <top>
-        <HBox spacing="10" style="-fx-padding: 10;">
+        <HBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+<!--            <Button text="⬅ Back" onAction="#backToReportSelection"/>-->
             <TextField fx:id="txtFilter" promptText="Search by Code/Name"/>
             <DatePicker fx:id="dpStartDate" promptText="Start Date"/>
             <DatePicker fx:id="dpEndDate" promptText="End Date"/>

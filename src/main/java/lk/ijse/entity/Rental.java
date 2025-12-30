@@ -15,16 +15,14 @@ public class Rental {
     private BigDecimal dailyPrice;
     private BigDecimal securityDeposit;
     private Long reservationId;
-    private String status;                 // Active / Returned / Overdue / Cancelled
+    private String status;
     private LocalDateTime createdAt;
 
-    // Payment info
     private BigDecimal totalAmount;
     private BigDecimal discount;
     private BigDecimal finalAmount;
     private String paymentStatus;
 
-    // Damage info
     private BigDecimal damageCharge;
     private String damageDescription;
 
@@ -56,7 +54,6 @@ public class Rental {
         this.damageDescription = damageDescription;
     }
 
-    // ==================== Getters & Setters ====================
     public long getRentalId() { return rentalId; }
     public void setRentalId(long rentalId) { this.rentalId = rentalId; }
 

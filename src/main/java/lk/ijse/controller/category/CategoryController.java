@@ -11,14 +11,12 @@ import lk.ijse.service.custom.CategoryService;
 
 public class CategoryController {
 
-    /* ===================== TABLE ===================== */
 
     @FXML private TableView<CategoryDTO> tblCategories;
     @FXML private TableColumn<CategoryDTO, Integer> colId;
     @FXML private TableColumn<CategoryDTO, String> colName;
     @FXML private TableColumn<CategoryDTO, String> colDescription;
 
-    /* ===================== FORM ===================== */
 
     @FXML private TextField txtCategoryId;
     @FXML private TextField txtName;
@@ -26,13 +24,11 @@ public class CategoryController {
 
     private CategoryDTO selectedCategory;
 
-    /* ===================== SERVICE ===================== */
 
     private final CategoryService categoryService =
             (CategoryService) ServiceFactory.getInstance()
                     .getService(ServiceFactory.ServiceType.CATEGORY);
 
-    /* ===================== INIT ===================== */
 
     @FXML
     public void initialize() {
@@ -74,7 +70,6 @@ public class CategoryController {
         }
     }
 
-    /* ===================== BUTTONS ===================== */
 
     @FXML
     void btnAddOnAction() {
@@ -130,7 +125,6 @@ public class CategoryController {
         clearForm();
     }
 
-    /* ===================== HELPERS ===================== */
 
     private void clearForm() {
         txtCategoryId.clear();

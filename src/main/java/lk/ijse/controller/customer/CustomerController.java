@@ -1,10 +1,15 @@
 package lk.ijse.controller.customer;
 
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.stage.Stage;
 import lk.ijse.dto.CustomerDTO;
 import lk.ijse.service.ServiceFactory;
 import lk.ijse.service.custom.CustomerService;
@@ -15,14 +20,12 @@ import java.util.List;
 
 public class CustomerController {
 
-    /* ===================== TABLE ===================== */
     @FXML private TableView<CustomerDTO> tblCustomers;
     @FXML private TableColumn<CustomerDTO, Long> colCustomerId;
     @FXML private TableColumn<CustomerDTO, String> colName;
     @FXML private TableColumn<CustomerDTO, String> colMembership;
     @FXML private TableColumn<CustomerDTO, BigDecimal> colTotalDeposit;
 
-    /* ===================== FORM ===================== */
     @FXML private TextField txtCustomerId;
     @FXML private TextField txtName;
     @FXML private TextField txtNIC;
@@ -32,12 +35,30 @@ public class CustomerController {
     @FXML private ComboBox<String> cmbMembership;
     @FXML private Label lblActiveDeposits;
 
-    /* ===================== SERVICE ===================== */
     private final CustomerService customerService =
             (CustomerService) ServiceFactory.getInstance()
                     .getService(ServiceFactory.ServiceType.CUSTOMER);
 
-    /* ===================== INITIALIZE ===================== */
+    @FXML
+    private void backToDashboard(ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(
+                    getClass().getResource("/view/dashboard.fxml")
+            );
+
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource())
+                    .getScene().getWindow();
+
+            stage.setScene(new Scene(root));
+            stage.setTitle("GearRent | Dashboard");
+            stage.centerOnScreen();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
     @FXML
     public void initialize() {
         colCustomerId.setCellValueFactory(new PropertyValueFactory<>("customerId"));
@@ -58,7 +79,6 @@ public class CustomerController {
         tableListener();
     }
 
-    /* ===================== TABLE ===================== */
     private void loadTable() {
         try {
             List<CustomerDTO> list = customerService.getAllCustomers();
@@ -93,7 +113,6 @@ public class CustomerController {
         }
     }
 
-    /* ===================== BUTTON ACTIONS ===================== */
     @FXML
     private void btnSaveOnAction() {
         try {
@@ -127,7 +146,6 @@ public class CustomerController {
         }
     }
 
-    /* ===================== HELPERS ===================== */
     private CustomerDTO buildDTO() {
         long id = txtCustomerId.getText().isEmpty() ? 0 : Long.parseLong(txtCustomerId.getText());
         Timestamp createdAt = new Timestamp(System.currentTimeMillis());

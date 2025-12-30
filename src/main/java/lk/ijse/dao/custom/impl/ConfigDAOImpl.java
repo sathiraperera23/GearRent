@@ -12,7 +12,8 @@ public class ConfigDAOImpl implements ConfigDAO {
 
     @Override
     public Config findConfig() throws Exception {
-        ResultSet rs = CrudUtil.executeQuery("SELECT * FROM config LIMIT 1"); // single row
+        // Pick the row with the highest ID (latest inserted)
+        ResultSet rs = CrudUtil.executeQuery("SELECT * FROM config ORDER BY config_id DESC LIMIT 1");
         if (rs.next()) {
             return new Config(
                     rs.getInt("config_id"),

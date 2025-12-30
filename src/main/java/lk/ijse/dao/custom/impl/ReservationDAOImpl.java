@@ -11,7 +11,6 @@ import java.util.List;
 
 public class ReservationDAOImpl implements ReservationDAO {
 
-    /* ===================== SAVE ===================== */
 
     @Override
     public boolean save(Reservation r) throws Exception {
@@ -32,7 +31,6 @@ public class ReservationDAOImpl implements ReservationDAO {
         );
     }
 
-    /* ===================== UPDATE ===================== */
 
     @Override
     public boolean update(Reservation r) throws Exception {
@@ -55,7 +53,6 @@ public class ReservationDAOImpl implements ReservationDAO {
         );
     }
 
-    /* ===================== DELETE ===================== */
 
     @Override
     public boolean delete(Long id) throws Exception {
@@ -63,7 +60,6 @@ public class ReservationDAOImpl implements ReservationDAO {
         return CrudUtil.executeUpdate(sql, id);
     }
 
-    /* ===================== FIND BY ID ===================== */
 
     @Override
     public Reservation find(Long id) throws Exception {
@@ -74,7 +70,6 @@ public class ReservationDAOImpl implements ReservationDAO {
         return rs.next() ? mapRow(rs) : null;
     }
 
-    /* ===================== FIND ALL ===================== */
 
     @Override
     public List<Reservation> findAll() throws Exception {
@@ -89,7 +84,6 @@ public class ReservationDAOImpl implements ReservationDAO {
         return list;
     }
 
-    /* ===================== AVAILABILITY CHECK ===================== */
 
     @Override
     public boolean isEquipmentAvailable(

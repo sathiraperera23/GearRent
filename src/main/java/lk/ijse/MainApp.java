@@ -14,7 +14,7 @@ public class MainApp extends Application {
         );
 
         Scene scene = new Scene(loader.load());
-        stage.setTitle("Equipment Rental System");
+        stage.setTitle("GearRent Pro Equipment Rental System");
         stage.setScene(scene);
         stage.show();
     }

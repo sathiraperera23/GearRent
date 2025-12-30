@@ -8,9 +8,12 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="lk.ijse.controller.reservation.ReservationController">
 
-    <!-- ===================== TOP ===================== -->
     <top>
         <ToolBar>
+
+            <Button text="⬅ Back" onAction="#backToDashboard"/>
+            <Separator/>
+
             <Button text="Add" onAction="#addReservation"/>
             <Button text="Update" onAction="#updateReservation"/>
             <Button text="Delete" onAction="#deleteReservation"/>
@@ -21,7 +24,6 @@
         </ToolBar>
     </top>
 
-    <!-- ===================== CENTER ===================== -->
     <center>
         <TableView fx:id="tblReservation">
             <columns>
@@ -36,7 +38,6 @@
         </TableView>
     </center>
 
-    <!-- ===================== BOTTOM ===================== -->
     <bottom>
         <GridPane hgap="10" vgap="10">
             <padding>

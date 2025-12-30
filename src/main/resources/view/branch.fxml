@@ -10,16 +10,25 @@
             style="-fx-padding: 15;">
 
     <top>
-        <HBox spacing="10">
-            <TextField fx:id="txtCode" promptText="Code" prefWidth="100"/>
-            <TextField fx:id="txtName" promptText="Name" prefWidth="150"/>
-            <TextField fx:id="txtAddress" promptText="Address" prefWidth="200"/>
-            <TextField fx:id="txtContact" promptText="Contact" prefWidth="120"/>
-            <Button text="Add" onAction="#addBranch"/>
-            <Button text="Update" onAction="#updateBranch"/>
-            <Button text="Delete" onAction="#deleteBranch"/>
-            <Button text="Clear" onAction="#clearFields"/>
-        </HBox>
+        <VBox spacing="10">
+
+            <HBox>
+                <Button text="⬅ Back to Dashboard"
+                        onAction="#backToDashboard"/>
+            </HBox>
+
+            <HBox spacing="10">
+                <TextField fx:id="txtCode" promptText="Code" prefWidth="100"/>
+                <TextField fx:id="txtName" promptText="Name" prefWidth="150"/>
+                <TextField fx:id="txtAddress" promptText="Address" prefWidth="200"/>
+                <TextField fx:id="txtContact" promptText="Contact" prefWidth="120"/>
+                <Button text="Add" onAction="#addBranch"/>
+                <Button text="Update" onAction="#updateBranch"/>
+                <Button text="Delete" onAction="#deleteBranch"/>
+                <Button text="Clear" onAction="#clearFields"/>
+            </HBox>
+
+        </VBox>
     </top>
 
     <center>
@@ -34,4 +43,5 @@
             </columns>
         </TableView>
     </center>
+
 </BorderPane>
