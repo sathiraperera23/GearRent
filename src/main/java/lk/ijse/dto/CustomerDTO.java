@@ -1,20 +1,24 @@
 package lk.ijse.dto;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 public class CustomerDTO {
-    private long customerId;
+
+    private Long customerId;
     private String name;
     private String nicPassport;
     private String contactNo;
     private String email;
     private String address;
-    private String membership; // Regular, Silver, Gold
+    private String membership;
     private Timestamp createdAt;
+    private BigDecimal totalActiveDeposits = BigDecimal.ZERO;  // ← ADD THIS
 
+    // Constructors
     public CustomerDTO() {}
 
-    public CustomerDTO(long customerId, String name, String nicPassport, String contactNo,
+    public CustomerDTO(Long customerId, String name, String nicPassport, String contactNo,
                        String email, String address, String membership, Timestamp createdAt) {
         this.customerId = customerId;
         this.name = name;
@@ -26,19 +30,9 @@ public class CustomerDTO {
         this.createdAt = createdAt;
     }
 
-    public CustomerDTO(long customerId, String name, String nicPassport, String contactNo,
-                       String email, String address, String membership) {
-        this.customerId = customerId;
-        this.name = name;
-        this.nicPassport = nicPassport;
-        this.contactNo = contactNo;
-        this.email = email;
-        this.address = address;
-        this.membership = membership;
-    }
-
-    public long getCustomerId() { return customerId; }
-    public void setCustomerId(long customerId) { this.customerId = customerId; }
+    // Getters and Setters
+    public Long getCustomerId() { return customerId; }
+    public void setCustomerId(Long customerId) { this.customerId = customerId; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -60,4 +54,10 @@ public class CustomerDTO {
 
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+
+    // ← ADD THESE
+    public BigDecimal getTotalActiveDeposits() { return totalActiveDeposits; }
+    public void setTotalActiveDeposits(BigDecimal totalActiveDeposits) {
+        this.totalActiveDeposits = totalActiveDeposits != null ? totalActiveDeposits : BigDecimal.ZERO;
+    }
 }

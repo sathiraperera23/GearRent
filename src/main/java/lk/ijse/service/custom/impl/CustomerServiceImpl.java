@@ -70,7 +70,11 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public List<CustomerDTO> getAllCustomers() throws Exception {
         List<CustomerDTO> list = new ArrayList<>();
-        for (Customer c : customerDAO.findAll()) list.add(toDTO(c));
+        for (Customer c : customerDAO.findAll()) {
+            CustomerDTO dto = toDTO(c);
+            dto.setTotalActiveDeposits(customerDAO.getTotalActiveDeposits(c.getCustomerId()));
+            list.add(dto);
+        }
         return list;
     }
 
