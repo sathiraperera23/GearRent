@@ -1,17 +1,18 @@
 package lk.ijse.controller.reservation;
 
-import javafx.beans.property.*;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import lk.ijse.dto.ReservationDTO;
 import lk.ijse.service.ServiceFactory;
 import lk.ijse.service.custom.ReservationService;
-import javafx.event.ActionEvent;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,10 +23,12 @@ public class ReservationController {
     @FXML private TextField txtCustomerId;
     @FXML private TextField txtEquipmentId;
     @FXML private TextField txtTotalPrice;
+
     @FXML private DatePicker dpFrom;
     @FXML private DatePicker dpTo;
 
     @FXML private TableView<ReservationDTO> tblReservation;
+
     @FXML private TableColumn<ReservationDTO, Long> colId;
     @FXML private TableColumn<ReservationDTO, Long> colCustomer;
     @FXML private TableColumn<ReservationDTO, Long> colEquipment;
@@ -38,203 +41,185 @@ public class ReservationController {
     @FXML private Button btnCancel;
     @FXML private Button btnCreateRental;
 
-    private final ReservationService reservationService =
-            (ReservationService) ServiceFactory.getInstance()
-                    .getService(ServiceFactory.ServiceType.RESERVATION);
+    private final ReservationService reservationService = (ReservationService) ServiceFactory.getInstance()
+            .getService(ServiceFactory.ServiceType.RESERVATION);
 
     @FXML
     private void backToDashboard(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(
-                    getClass().getResource("/view/dashboard.fxml")
-            );
-
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource())
-                    .getScene().getWindow();
-
+            Parent root = FXMLLoader.load(getClass().getResource("/view/dashboard.fxml"));
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.setTitle("GearRent | Dashboard");
             stage.centerOnScreen();
-
         } catch (Exception e) {
-            e.printStackTrace();
+            showError("Failed to load dashboard: " + e.getMessage());
         }
     }
 
-
-
     @FXML
     public void initialize() {
-
-        colId.setCellValueFactory(c ->
-                new SimpleLongProperty(c.getValue().getReservationId()).asObject());
-        colCustomer.setCellValueFactory(c ->
-                new SimpleLongProperty(c.getValue().getCustomerId()).asObject());
-        colEquipment.setCellValueFactory(c ->
-                new SimpleLongProperty(c.getValue().getEquipmentId()).asObject());
-        colFrom.setCellValueFactory(c ->
-                new SimpleObjectProperty<>(c.getValue().getReservedFrom()));
-        colTo.setCellValueFactory(c ->
-                new SimpleObjectProperty<>(c.getValue().getReservedTo()));
-        colTotal.setCellValueFactory(c ->
-                new SimpleObjectProperty<>(c.getValue().getTotalPrice()));
-        colStatus.setCellValueFactory(c ->
-                new SimpleStringProperty(c.getValue().getStatus()));
+        // Simple PropertyValueFactory — perfect for DTOs
+        colId.setCellValueFactory(new PropertyValueFactory<>("reservationId"));
+        colCustomer.setCellValueFactory(new PropertyValueFactory<>("customerId"));
+        colEquipment.setCellValueFactory(new PropertyValueFactory<>("equipmentId"));
+        colFrom.setCellValueFactory(new PropertyValueFactory<>("reservedFrom"));
+        colTo.setCellValueFactory(new PropertyValueFactory<>("reservedTo"));
+        colTotal.setCellValueFactory(new PropertyValueFactory<>("totalPrice"));
+        colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
 
         loadReservations();
-
-        tblReservation.getSelectionModel()
-                .selectedItemProperty()
-                .addListener((obs, old, r) -> populateForm(r));
+        setupTableSelectionListener();
     }
 
+    private void loadReservations() {
+        try {
+            ObservableList<ReservationDTO> reservations = FXCollections.observableArrayList(
+                    reservationService.getAllReservations()
+            );
+            tblReservation.setItems(reservations);
+        } catch (Exception e) {
+            showError("Failed to load reservations: " + e.getMessage());
+        }
+    }
+
+    private void setupTableSelectionListener() {
+        tblReservation.getSelectionModel().selectedItemProperty()
+                .addListener((obs, oldSelection, newSelection) -> {
+                    if (newSelection != null) {
+                        populateForm(newSelection);
+                    } else {
+                        clearForm();
+                    }
+                });
+    }
+
+    private void populateForm(ReservationDTO dto) {
+        txtReservationId.setText(String.valueOf(dto.getReservationId()));
+        txtCustomerId.setText(String.valueOf(dto.getCustomerId()));
+        txtEquipmentId.setText(String.valueOf(dto.getEquipmentId()));
+        dpFrom.setValue(dto.getReservedFrom());
+        dpTo.setValue(dto.getReservedTo());
+        txtTotalPrice.setText(dto.getTotalPrice().toString());
+
+        // Button logic based on status
+        String status = dto.getStatus();
+        btnConfirm.setDisable(!"Pending".equals(status));
+        btnCancel.setDisable("Cancelled".equals(status) || "Completed".equals(status));
+        btnCreateRental.setDisable(!"Confirmed".equals(status));
+    }
 
     @FXML
     private void addReservation() {
         try {
-            ReservationDTO dto = new ReservationDTO(
-                    0,
-                    Long.parseLong(txtCustomerId.getText()),
-                    Long.parseLong(txtEquipmentId.getText()),
-                    dpFrom.getValue(),
-                    dpTo.getValue(),
-                    new BigDecimal(txtTotalPrice.getText()),
-                    "Pending",
-                    null
-            );
+            ReservationDTO dto = new ReservationDTO();
+            dto.setCustomerId(Long.parseLong(txtCustomerId.getText()));
+            dto.setEquipmentId(Long.parseLong(txtEquipmentId.getText()));
+            dto.setReservedFrom(dpFrom.getValue());
+            dto.setReservedTo(dpTo.getValue());
+            dto.setTotalPrice(new BigDecimal(txtTotalPrice.getText()));
 
             reservationService.saveReservation(dto);
+            showInfo("Reservation added successfully!");
             loadReservations();
             clearForm();
-            info("Reservation added");
-
         } catch (Exception e) {
-            error(e.getMessage());
+            showError("Failed to save reservation: " + e.getMessage());
         }
     }
 
     @FXML
     private void updateReservation() {
-        try {
-            ReservationDTO selected = getSelected();
-            if (selected == null) return;
+        ReservationDTO selected = tblReservation.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showError("Please select a reservation to update");
+            return;
+        }
 
-            ReservationDTO dto = new ReservationDTO(
-                    selected.getReservationId(),
-                    selected.getCustomerId(),
-                    selected.getEquipmentId(),
-                    dpFrom.getValue(),
-                    dpTo.getValue(),
-                    new BigDecimal(txtTotalPrice.getText()),
-                    selected.getStatus(),
-                    null
-            );
+        try {
+            ReservationDTO dto = new ReservationDTO();
+            dto.setReservationId(selected.getReservationId());
+            dto.setCustomerId(Long.parseLong(txtCustomerId.getText()));
+            dto.setEquipmentId(Long.parseLong(txtEquipmentId.getText()));
+            dto.setReservedFrom(dpFrom.getValue());
+            dto.setReservedTo(dpTo.getValue());
+            dto.setTotalPrice(new BigDecimal(txtTotalPrice.getText()));
+            dto.setStatus(selected.getStatus()); // keep current status unless changed
 
             reservationService.updateReservation(dto);
+            showInfo("Reservation updated successfully!");
             loadReservations();
-            clearForm();
-            info("Reservation updated");
-
         } catch (Exception e) {
-            error(e.getMessage());
+            showError("Update failed: " + e.getMessage());
         }
     }
 
     @FXML
     private void deleteReservation() {
-        try {
-            ReservationDTO selected = getSelected();
-            if (selected == null) return;
+        ReservationDTO selected = tblReservation.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showError("Please select a reservation to delete");
+            return;
+        }
 
+        try {
             reservationService.deleteReservation(selected.getReservationId());
+            showInfo("Reservation deleted successfully!");
             loadReservations();
             clearForm();
-            info("Reservation deleted");
-
         } catch (Exception e) {
-            error(e.getMessage());
+            showError("Delete failed: " + e.getMessage());
         }
     }
 
-
     @FXML
     private void confirmReservation() {
+        ReservationDTO selected = tblReservation.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showError("Please select a reservation");
+            return;
+        }
+
         try {
-            ReservationDTO r = getSelected();
-            if (r == null) return;
-
-            reservationService.confirmReservation(r.getReservationId());
+            reservationService.confirmReservation(selected.getReservationId());
+            showInfo("Reservation confirmed!");
             loadReservations();
-            info("Reservation confirmed");
-
         } catch (Exception e) {
-            error(e.getMessage());
+            showError("Confirm failed: " + e.getMessage());
         }
     }
 
     @FXML
     private void cancelReservation() {
+        ReservationDTO selected = tblReservation.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showError("Please select a reservation");
+            return;
+        }
+
         try {
-            ReservationDTO r = getSelected();
-            if (r == null) return;
-
-            reservationService.cancelReservation(r.getReservationId());
+            reservationService.cancelReservation(selected.getReservationId());
+            showInfo("Reservation cancelled!");
             loadReservations();
-            info("Reservation cancelled");
-
         } catch (Exception e) {
-            error(e.getMessage());
+            showError("Cancel failed: " + e.getMessage());
         }
     }
 
     @FXML
     private void createRental() {
-        try {
-            ReservationDTO r = getSelected();
-            if (r == null) return;
+        ReservationDTO selected = tblReservation.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showError("Please select a Confirmed reservation");
+            return;
+        }
 
-            reservationService.createRentalFromReservation(r.getReservationId());
+        try {
+            reservationService.createRentalFromReservation(selected.getReservationId());
+            showInfo("Rental created successfully from reservation!");
             loadReservations();
-            info("Rental created from reservation");
-
         } catch (Exception e) {
-            error(e.getMessage());
-        }
-    }
-
-
-    private void populateForm(ReservationDTO r) {
-        if (r == null) return;
-
-        txtReservationId.setText(String.valueOf(r.getReservationId()));
-        txtCustomerId.setText(String.valueOf(r.getCustomerId()));
-        txtEquipmentId.setText(String.valueOf(r.getEquipmentId()));
-        dpFrom.setValue(r.getReservedFrom());
-        dpTo.setValue(r.getReservedTo());
-        txtTotalPrice.setText(r.getTotalPrice().toString());
-
-        btnConfirm.setDisable(!"Pending".equals(r.getStatus()));
-        btnCancel.setDisable("Cancelled".equals(r.getStatus()) || "Completed".equals(r.getStatus()));
-        btnCreateRental.setDisable(!"Confirmed".equals(r.getStatus()));
-    }
-
-    private ReservationDTO getSelected() {
-        ReservationDTO r = tblReservation.getSelectionModel().getSelectedItem();
-        if (r == null) {
-            error("Select a reservation first");
-        }
-        return r;
-    }
-
-    private void loadReservations() {
-        try {
-            tblReservation.setItems(
-                    FXCollections.observableArrayList(
-                            reservationService.getAllReservations()
-                    )
-            );
-        } catch (Exception e) {
-            error(e.getMessage());
+            showError("Failed to create rental: " + e.getMessage());
         }
     }
 
@@ -245,13 +230,16 @@ public class ReservationController {
         txtTotalPrice.clear();
         dpFrom.setValue(null);
         dpTo.setValue(null);
+        btnConfirm.setDisable(true);
+        btnCancel.setDisable(true);
+        btnCreateRental.setDisable(true);
     }
 
-    private void info(String msg) {
-        new Alert(Alert.AlertType.INFORMATION, msg).show();
+    private void showInfo(String message) {
+        new Alert(Alert.AlertType.INFORMATION, message).show();
     }
 
-    private void error(String msg) {
-        new Alert(Alert.AlertType.ERROR, msg).show();
+    private void showError(String message) {
+        new Alert(Alert.AlertType.ERROR, message).show();
     }
 }

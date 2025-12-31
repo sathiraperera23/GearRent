@@ -8,69 +8,65 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="lk.ijse.controller.rental.RentalController">
 
-    <Button text="⬅ Back"
-            layoutX="20"
-            layoutY="10"
-            onAction="#backToDashboard"/>
+    <!-- Back Button -->
+    <Button text="⬅ Back" layoutX="20" layoutY="10" onAction="#backToDashboard"/>
 
-    <TableView fx:id="tblRental" layoutX="20" layoutY="50"
-               prefWidth="1060" prefHeight="250">
+    <!-- Table -->
+    <TableView fx:id="tblRental" layoutX="20" layoutY="50" prefWidth="1060" prefHeight="250">
         <columns>
-            <TableColumn fx:id="colId" text="Rental ID" prefWidth="120"/>
-            <TableColumn fx:id="colCustomer" text="Customer" prefWidth="120"/>
-            <TableColumn fx:id="colEquipment" text="Equipment" prefWidth="120"/>
-            <TableColumn fx:id="colFrom" text="From" prefWidth="150"/>
-            <TableColumn fx:id="colTo" text="To" prefWidth="150"/>
-            <TableColumn fx:id="colStatus" text="Status" prefWidth="150"/>
+            <TableColumn fx:id="colId" text="Rental ID" prefWidth="100"/>
+            <TableColumn fx:id="colCustomer" text="Customer ID" prefWidth="120"/>
+            <TableColumn fx:id="colEquipment" text="Equipment ID" prefWidth="120"/>
+            <TableColumn fx:id="colFrom" text="Rented From" prefWidth="150"/>
+            <TableColumn fx:id="colTo" text="Rented To" prefWidth="150"/>
+            <TableColumn fx:id="colStatus" text="Status" prefWidth="120"/>
+            <TableColumn fx:id="colFinalAmount" text="Final Amount" prefWidth="140"/>
+            <TableColumn fx:id="colPaymentStatus" text="Payment Status" prefWidth="160"/>
         </columns>
     </TableView>
 
-    <GridPane layoutX="20" layoutY="300" hgap="10" vgap="10">
+    <!-- Form -->
+    <GridPane layoutX="20" layoutY="320" hgap="15" vgap="12" prefWidth="1060">
+        <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="150"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="300"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="150"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="300"/>
+        </columnConstraints>
 
-        <Label text="Rental ID"/>
-        <TextField fx:id="txtRentalId" GridPane.columnIndex="1" editable="false"/>
+        <Label text="Rental ID" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtRentalId" editable="false" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-        <Label text="Customer ID" GridPane.rowIndex="1"/>
-        <TextField fx:id="txtCustomerId" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <Label text="Customer ID" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtCustomerId" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-        <Label text="Equipment ID" GridPane.rowIndex="2"/>
-        <TextField fx:id="txtEquipmentId" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <Label text="Equipment ID" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtEquipmentId" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-        <Label text="Branch ID" GridPane.rowIndex="3"/>
-        <TextField fx:id="txtBranchId" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+        <Label text="Rented From" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <DatePicker fx:id="dpFrom" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-        <Label text="From" GridPane.rowIndex="4"/>
-        <DatePicker fx:id="dpFrom" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+        <Label text="Rented To" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <DatePicker fx:id="dpTo" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
 
-        <Label text="To" GridPane.rowIndex="5"/>
-        <DatePicker fx:id="dpTo" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+        <Label text="Daily Price" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+        <TextField fx:id="txtDailyPrice" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
 
-        <Label text="Return" GridPane.rowIndex="6"/>
-        <DatePicker fx:id="dpReturn" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+        <Label text="Security Deposit" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+        <TextField fx:id="txtDeposit" GridPane.rowIndex="2" GridPane.columnIndex="3"/>
 
-        <Label text="Daily Price" GridPane.columnIndex="2"/>
-        <TextField fx:id="txtDailyPrice" GridPane.columnIndex="3"/>
+        <Label text="Status" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
+        <ComboBox fx:id="cmbStatus" prefWidth="150" GridPane.rowIndex="3" GridPane.columnIndex="3"/>
 
-        <Label text="Deposit" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-        <TextField fx:id="txtDeposit" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
-
-        <Label text="Discount" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
-        <TextField fx:id="txtDiscount" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
-
-        <Label text="Damage" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
-        <TextField fx:id="txtDamage" GridPane.columnIndex="3" GridPane.rowIndex="3"/>
-
-        <Label text="Payment" GridPane.columnIndex="2" GridPane.rowIndex="4"/>
-        <ComboBox fx:id="cmbPayment" GridPane.columnIndex="3" GridPane.rowIndex="4"/>
-
-        <Label text="Status" GridPane.columnIndex="2" GridPane.rowIndex="5"/>
-        <ComboBox fx:id="cmbStatus" GridPane.columnIndex="3" GridPane.rowIndex="5"/>
+        <Label text="Payment Status" GridPane.rowIndex="4" GridPane.columnIndex="2"/>
+        <ComboBox fx:id="cmbPayment" prefWidth="150" GridPane.rowIndex="4" GridPane.columnIndex="3"/>
     </GridPane>
 
-    <HBox spacing="15" layoutX="420" layoutY="580">
-        <Button text="Save" onAction="#btnSaveOnAction"/>
-        <Button text="Update" onAction="#btnUpdateOnAction"/>
-        <Button text="Return" onAction="#btnReturnOnAction"/>
+    <!-- Action Buttons -->
+    <HBox spacing="20" layoutX="400" layoutY="580" alignment="CENTER">
+        <Button text="Add" onAction="#btnAddOnAction" prefWidth="100"/>
+        <Button text="Update" onAction="#btnUpdateOnAction" prefWidth="100"/>
+        <Button text="Clear" onAction="#btnClearOnAction" prefWidth="100"/>
     </HBox>
 
 </AnchorPane>

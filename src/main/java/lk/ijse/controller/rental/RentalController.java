@@ -19,137 +19,74 @@ import java.time.LocalDate;
 
 public class RentalController {
 
+    /* ===================== TABLE ===================== */
+    @FXML private TableView<RentalDTO> tblRental;
 
-    @FXML
-    private TableView<RentalDTO> tblRental;
+    @FXML private TableColumn<RentalDTO, Long> colId;
+    @FXML private TableColumn<RentalDTO, Long> colCustomer;
+    @FXML private TableColumn<RentalDTO, Long> colEquipment;
+    @FXML private TableColumn<RentalDTO, LocalDate> colFrom;
+    @FXML private TableColumn<RentalDTO, LocalDate> colTo;
+    @FXML private TableColumn<RentalDTO, String> colStatus;
+    @FXML private TableColumn<RentalDTO, BigDecimal> colFinalAmount;
+    @FXML private TableColumn<RentalDTO, String> colPaymentStatus;
 
-    @FXML
-    private TableColumn<RentalDTO, Long> colId;
+    /* ===================== FORM ===================== */
+    @FXML private TextField txtRentalId;
+    @FXML private TextField txtCustomerId;
+    @FXML private TextField txtEquipmentId;
+    @FXML private DatePicker dpFrom;
+    @FXML private DatePicker dpTo;
+    @FXML private TextField txtDailyPrice;
+    @FXML private TextField txtDeposit;
+    @FXML private ComboBox<String> cmbStatus;
+    @FXML private ComboBox<String> cmbPayment;
 
-    @FXML
-    private TableColumn<RentalDTO, Long> colCustomer;
+    private RentalDTO selectedRental;
 
-    @FXML
-    private TableColumn<RentalDTO, Long> colEquipment;
-
-    @FXML
-    private TableColumn<RentalDTO, LocalDate> colFrom;
-
-    @FXML
-    private TableColumn<RentalDTO, LocalDate> colTo;
-
-    @FXML
-    private TableColumn<RentalDTO, String> colStatus;
-
-
-    @FXML
-    private TextField txtRentalId;
-
-    @FXML
-    private TextField txtCustomerId;
-
-    @FXML
-    private TextField txtEquipmentId;
-
-    @FXML
-    private TextField txtBranchId;
-
-    @FXML
-    private DatePicker dpFrom;
-
-    @FXML
-    private DatePicker dpTo;
-
-    @FXML
-    private DatePicker dpReturn;
-
-    @FXML
-    private TextField txtDailyPrice;
-
-    @FXML
-    private TextField txtDeposit;
-
-    @FXML
-    private TextField txtDiscount;
-
-    @FXML
-    private TextField txtDamage;
-
-    @FXML
-    private ComboBox<String> cmbPayment;
-
-    @FXML
-    private ComboBox<String> cmbStatus;
-
-
-    private RentalService rentalService;
-
+    private final RentalService rentalService = (RentalService) ServiceFactory.getInstance()
+            .getService(ServiceFactory.ServiceType.RENTAL);
 
     @FXML
     private void backToDashboard(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(
-                    getClass().getResource("/view/dashboard.fxml")
-            );
-
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource())
-                    .getScene().getWindow();
-
+            Parent root = FXMLLoader.load(getClass().getResource("/view/dashboard.fxml"));
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.setTitle("GearRent | Dashboard");
             stage.centerOnScreen();
-
         } catch (Exception e) {
             e.printStackTrace();
+            showError("Failed to load dashboard");
         }
     }
 
-
     @FXML
     public void initialize() {
-
-        rentalService =
-                (RentalService) ServiceFactory.getInstance()
-                        .getService(ServiceFactory.ServiceType.RENTAL);
-
+        // Table columns
         colId.setCellValueFactory(new PropertyValueFactory<>("rentalId"));
         colCustomer.setCellValueFactory(new PropertyValueFactory<>("customerId"));
         colEquipment.setCellValueFactory(new PropertyValueFactory<>("equipmentId"));
         colFrom.setCellValueFactory(new PropertyValueFactory<>("rentedFrom"));
         colTo.setCellValueFactory(new PropertyValueFactory<>("rentedTo"));
         colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+        colFinalAmount.setCellValueFactory(new PropertyValueFactory<>("finalAmount"));
+        colPaymentStatus.setCellValueFactory(new PropertyValueFactory<>("paymentStatus"));
 
-        cmbPayment.setItems(FXCollections.observableArrayList(
-                "Paid", "Partially Paid", "Unpaid"
-        ));
+        // ComboBoxes
+        cmbStatus.setItems(FXCollections.observableArrayList("Open", "Closed"));
+        cmbPayment.setItems(FXCollections.observableArrayList("Paid", "Partially Paid", "Unpaid"));
 
-        cmbStatus.setItems(FXCollections.observableArrayList(
-                "Active", "Returned", "Overdue"
-        ));
-
-        loadAllRentals();
         tableListener();
-    }
-
-
-    private void loadAllRentals() {
-        try {
-            ObservableList<RentalDTO> list =
-                    FXCollections.observableArrayList(
-                            rentalService.getAllRentals()
-                    );
-            tblRental.setItems(list);
-        } catch (Exception e) {
-            showError(e.getMessage());
-        }
+        loadTable();
     }
 
     private void tableListener() {
-        tblRental.getSelectionModel()
-                .selectedItemProperty()
-                .addListener((obs, old, rental) -> {
-                    if (rental != null) {
-                        fillForm(rental);
+        tblRental.getSelectionModel().selectedItemProperty()
+                .addListener((obs, old, newSelection) -> {
+                    if (newSelection != null) {
+                        selectedRental = newSelection;
+                        fillForm(newSelection);
                     }
                 });
     }
@@ -158,121 +95,97 @@ public class RentalController {
         txtRentalId.setText(String.valueOf(r.getRentalId()));
         txtCustomerId.setText(String.valueOf(r.getCustomerId()));
         txtEquipmentId.setText(String.valueOf(r.getEquipmentId()));
-        txtBranchId.setText(String.valueOf(r.getBranchId()));
         dpFrom.setValue(r.getRentedFrom());
         dpTo.setValue(r.getRentedTo());
         txtDailyPrice.setText(r.getDailyPrice().toString());
         txtDeposit.setText(r.getSecurityDeposit().toString());
-        txtDiscount.setText(
-                r.getDiscount() != null ? r.getDiscount().toString() : "0"
-        );
         cmbStatus.setValue(r.getStatus());
         cmbPayment.setValue(r.getPaymentStatus());
     }
 
-
-    @FXML
-    void btnSaveOnAction(ActionEvent event) {
+    private void loadTable() {
         try {
-            RentalDTO dto = new RentalDTO();
-            dto.setCustomerId(Long.parseLong(txtCustomerId.getText()));
-            dto.setEquipmentId(Long.parseLong(txtEquipmentId.getText()));
-            dto.setBranchId(Long.parseLong(txtBranchId.getText()));
-            dto.setRentedFrom(dpFrom.getValue());
-            dto.setRentedTo(dpTo.getValue());
-            dto.setDailyPrice(new BigDecimal(txtDailyPrice.getText()));
-            dto.setSecurityDeposit(new BigDecimal(txtDeposit.getText()));
-
-            boolean saved = rentalService.saveRental(dto);
-            if (saved) {
-                showInfo("Rental saved successfully");
-                loadAllRentals();
-                clearForm();
-            }
-
+            ObservableList<RentalDTO> list = FXCollections.observableArrayList(
+                    rentalService.getAllRentals()
+            );
+            tblRental.setItems(list);
         } catch (Exception e) {
-            showError(e.getMessage());
+            showError("Failed to load rentals: " + e.getMessage());
         }
     }
 
     @FXML
-    void btnUpdateOnAction(ActionEvent event) {
+    void btnAddOnAction() {
         try {
-            RentalDTO dto = new RentalDTO();
+            rentalService.saveRental(buildDTO());
+            showInfo("Rental added successfully!");
+            loadTable();
+            clearForm();
+        } catch (Exception e) {
+            showError("Add failed: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    void btnUpdateOnAction() {
+        try {
+            if (selectedRental == null) {
+                showError("Please select a rental to update");
+                return;
+            }
+            rentalService.updateRental(buildDTO());
+            showInfo("Rental updated successfully!");
+            loadTable();
+        } catch (Exception e) {
+            showError("Update failed: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    void btnClearOnAction() {
+        clearForm();
+    }
+
+    /* ===================== HELPERS ===================== */
+
+    private RentalDTO buildDTO() {
+        RentalDTO dto = new RentalDTO();
+
+        // If updating, include rentalId
+        if (!txtRentalId.getText().isEmpty()) {
             dto.setRentalId(Long.parseLong(txtRentalId.getText()));
-            dto.setCustomerId(Long.parseLong(txtCustomerId.getText()));
-            dto.setEquipmentId(Long.parseLong(txtEquipmentId.getText()));
-            dto.setBranchId(Long.parseLong(txtBranchId.getText()));
-            dto.setRentedFrom(dpFrom.getValue());
-            dto.setRentedTo(dpTo.getValue());
-            dto.setDailyPrice(new BigDecimal(txtDailyPrice.getText()));
-            dto.setSecurityDeposit(new BigDecimal(txtDeposit.getText()));
-            dto.setStatus(cmbStatus.getValue());
-            dto.setPaymentStatus(cmbPayment.getValue());
-
-            boolean updated = rentalService.updateRental(dto);
-            if (updated) {
-                showInfo("Rental updated");
-                loadAllRentals();
-            }
-
-        } catch (Exception e) {
-            showError(e.getMessage());
         }
+
+        dto.setCustomerId(Long.parseLong(txtCustomerId.getText()));
+        dto.setEquipmentId(Long.parseLong(txtEquipmentId.getText()));
+        dto.setRentedFrom(dpFrom.getValue());
+        dto.setRentedTo(dpTo.getValue());
+        dto.setDailyPrice(new BigDecimal(txtDailyPrice.getText()));
+        dto.setSecurityDeposit(new BigDecimal(txtDeposit.getText()));
+        dto.setStatus(cmbStatus.getValue());
+        dto.setPaymentStatus(cmbPayment.getValue());
+
+        return dto;
     }
-
-    @FXML
-    void btnReturnOnAction(ActionEvent event) {
-        try {
-            long rentalId = Long.parseLong(txtRentalId.getText());
-            LocalDate returnDate = dpReturn.getValue();
-
-            BigDecimal damage =
-                    txtDamage.getText().isEmpty()
-                            ? BigDecimal.ZERO
-                            : new BigDecimal(txtDamage.getText());
-
-            boolean returned =
-                    rentalService.returnRental(
-                            rentalId,
-                            returnDate,
-                            damage,
-                            "Returned via UI"
-                    );
-
-            if (returned) {
-                showInfo("Rental returned successfully");
-                loadAllRentals();
-                clearForm();
-            }
-
-        } catch (Exception e) {
-            showError(e.getMessage());
-        }
-    }
-
 
     private void clearForm() {
         txtRentalId.clear();
         txtCustomerId.clear();
         txtEquipmentId.clear();
-        txtBranchId.clear();
         dpFrom.setValue(null);
         dpTo.setValue(null);
-        dpReturn.setValue(null);
         txtDailyPrice.clear();
         txtDeposit.clear();
-        txtDiscount.clear();
-        txtDamage.clear();
         cmbStatus.setValue(null);
         cmbPayment.setValue(null);
-    }
-
-    private void showError(String msg) {
-        new Alert(Alert.AlertType.ERROR, msg).show();
+        selectedRental = null;
     }
 
     private void showInfo(String msg) {
         new Alert(Alert.AlertType.INFORMATION, msg).show();
+    }
+
+    private void showError(String msg) {
+        new Alert(Alert.AlertType.ERROR, msg).show();
     }
 }

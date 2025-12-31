@@ -4,40 +4,38 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class RentalDTO {
-    private long rentalId;
-    private long customerId;
-    private long equipmentId;
-    private long branchId;                 // Branch processing rental
+
+    private Long rentalId;
+    private Long customerId;
+    private Long equipmentId;
+
     private LocalDate rentedFrom;
     private LocalDate rentedTo;
-    private LocalDate actualReturn;        // Actual return date
+
     private BigDecimal dailyPrice;
     private BigDecimal securityDeposit;
     private Long reservationId;
-    private String status;                 // Active, Returned, Overdue, Cancelled
+    private String status;                  // Open / Closed
+    private BigDecimal totalAmount;
+    private BigDecimal discount;
+    private BigDecimal finalAmount;
+    private String paymentStatus;           // Paid / Partially Paid / Unpaid
 
-    private BigDecimal totalAmount;        // total before discounts
-    private BigDecimal discount;           // membership + long rental discount
-    private BigDecimal finalAmount;        // totalAmount - discount
-    private String paymentStatus;          // Paid / Partially Paid / Unpaid
-
-    private BigDecimal damageCharge;
-    private String damageDescription;
-
+    // Default constructor
     public RentalDTO() {}
 
-    public RentalDTO(long rentalId, long customerId, long equipmentId, long branchId,
-                     LocalDate rentedFrom, LocalDate rentedTo, LocalDate actualReturn,
-                     BigDecimal dailyPrice, BigDecimal securityDeposit, Long reservationId,
-                     String status, BigDecimal totalAmount, BigDecimal discount, BigDecimal finalAmount,
-                     String paymentStatus, BigDecimal damageCharge, String damageDescription) {
+    // Constructor matching current rentals table
+    public RentalDTO(Long rentalId, Long customerId, Long equipmentId,
+                     LocalDate rentedFrom, LocalDate rentedTo,
+                     BigDecimal dailyPrice, BigDecimal securityDeposit,
+                     Long reservationId, String status,
+                     BigDecimal totalAmount, BigDecimal discount,
+                     BigDecimal finalAmount, String paymentStatus) {
         this.rentalId = rentalId;
         this.customerId = customerId;
         this.equipmentId = equipmentId;
-        this.branchId = branchId;
         this.rentedFrom = rentedFrom;
         this.rentedTo = rentedTo;
-        this.actualReturn = actualReturn;
         this.dailyPrice = dailyPrice;
         this.securityDeposit = securityDeposit;
         this.reservationId = reservationId;
@@ -46,59 +44,130 @@ public class RentalDTO {
         this.discount = discount;
         this.finalAmount = finalAmount;
         this.paymentStatus = paymentStatus;
-        this.damageCharge = damageCharge;
-        this.damageDescription = damageDescription;
     }
 
     // ==================== Getters & Setters ====================
-    public long getRentalId() { return rentalId; }
-    public void setRentalId(long rentalId) { this.rentalId = rentalId; }
 
-    public long getCustomerId() { return customerId; }
-    public void setCustomerId(long customerId) { this.customerId = customerId; }
+    public Long getRentalId() {
+        return rentalId;
+    }
 
-    public long getEquipmentId() { return equipmentId; }
-    public void setEquipmentId(long equipmentId) { this.equipmentId = equipmentId; }
+    public void setRentalId(Long rentalId) {
+        this.rentalId = rentalId;
+    }
 
-    public long getBranchId() { return branchId; }
-    public void setBranchId(long branchId) { this.branchId = branchId; }
+    public Long getCustomerId() {
+        return customerId;
+    }
 
-    public LocalDate getRentedFrom() { return rentedFrom; }
-    public void setRentedFrom(LocalDate rentedFrom) { this.rentedFrom = rentedFrom; }
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
 
-    public LocalDate getRentedTo() { return rentedTo; }
-    public void setRentedTo(LocalDate rentedTo) { this.rentedTo = rentedTo; }
+    public Long getEquipmentId() {
+        return equipmentId;
+    }
 
-    public LocalDate getActualReturn() { return actualReturn; }
-    public void setActualReturn(LocalDate actualReturn) { this.actualReturn = actualReturn; }
+    public void setEquipmentId(Long equipmentId) {
+        this.equipmentId = equipmentId;
+    }
 
-    public BigDecimal getDailyPrice() { return dailyPrice; }
-    public void setDailyPrice(BigDecimal dailyPrice) { this.dailyPrice = dailyPrice; }
+    public LocalDate getRentedFrom() {
+        return rentedFrom;
+    }
 
-    public BigDecimal getSecurityDeposit() { return securityDeposit; }
-    public void setSecurityDeposit(BigDecimal securityDeposit) { this.securityDeposit = securityDeposit; }
+    public void setRentedFrom(LocalDate rentedFrom) {
+        this.rentedFrom = rentedFrom;
+    }
 
-    public Long getReservationId() { return reservationId; }
-    public void setReservationId(Long reservationId) { this.reservationId = reservationId; }
+    public LocalDate getRentedTo() {
+        return rentedTo;
+    }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public void setRentedTo(LocalDate rentedTo) {
+        this.rentedTo = rentedTo;
+    }
 
-    public BigDecimal getTotalAmount() { return totalAmount; }
-    public void setTotalAmount(BigDecimal totalAmount) { this.totalAmount = totalAmount; }
+    public BigDecimal getDailyPrice() {
+        return dailyPrice;
+    }
 
-    public BigDecimal getDiscount() { return discount; }
-    public void setDiscount(BigDecimal discount) { this.discount = discount; }
+    public void setDailyPrice(BigDecimal dailyPrice) {
+        this.dailyPrice = dailyPrice;
+    }
 
-    public BigDecimal getFinalAmount() { return finalAmount; }
-    public void setFinalAmount(BigDecimal finalAmount) { this.finalAmount = finalAmount; }
+    public BigDecimal getSecurityDeposit() {
+        return securityDeposit;
+    }
 
-    public String getPaymentStatus() { return paymentStatus; }
-    public void setPaymentStatus(String paymentStatus) { this.paymentStatus = paymentStatus; }
+    public void setSecurityDeposit(BigDecimal securityDeposit) {
+        this.securityDeposit = securityDeposit;
+    }
 
-    public BigDecimal getDamageCharge() { return damageCharge; }
-    public void setDamageCharge(BigDecimal damageCharge) { this.damageCharge = damageCharge; }
+    public Long getReservationId() {
+        return reservationId;
+    }
 
-    public String getDamageDescription() { return damageDescription; }
-    public void setDamageDescription(String damageDescription) { this.damageDescription = damageDescription; }
+    public void setReservationId(Long reservationId) {
+        this.reservationId = reservationId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public BigDecimal getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(BigDecimal discount) {
+        this.discount = discount;
+    }
+
+    public BigDecimal getFinalAmount() {
+        return finalAmount;
+    }
+
+    public void setFinalAmount(BigDecimal finalAmount) {
+        this.finalAmount = finalAmount;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+    @Override
+    public String toString() {
+        return "RentalDTO{" +
+                "rentalId=" + rentalId +
+                ", customerId=" + customerId +
+                ", equipmentId=" + equipmentId +
+                ", rentedFrom=" + rentedFrom +
+                ", rentedTo=" + rentedTo +
+                ", dailyPrice=" + dailyPrice +
+                ", securityDeposit=" + securityDeposit +
+                ", reservationId=" + reservationId +
+                ", status='" + status + '\'' +
+                ", totalAmount=" + totalAmount +
+                ", discount=" + discount +
+                ", finalAmount=" + finalAmount +
+                ", paymentStatus='" + paymentStatus + '\'' +
+                '}';
+    }
 }

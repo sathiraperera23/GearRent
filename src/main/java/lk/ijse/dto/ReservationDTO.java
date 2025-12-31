@@ -1,22 +1,27 @@
 package lk.ijse.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 
 public class ReservationDTO {
-    private long reservationId;
-    private long customerId;
-    private long equipmentId;
+
+    private Long reservationId;
+    private Long customerId;
+    private Long equipmentId;
+
     private LocalDate reservedFrom;
     private LocalDate reservedTo;
+
     private BigDecimal totalPrice;
     private String status;
     private Timestamp createdAt;
 
+    // Default constructor
     public ReservationDTO() {}
 
-    public ReservationDTO(long reservationId, long customerId, long equipmentId,
+    // Full constructor
+    public ReservationDTO(Long reservationId, Long customerId, Long equipmentId,
                           LocalDate reservedFrom, LocalDate reservedTo,
                           BigDecimal totalPrice, String status, Timestamp createdAt) {
         this.reservationId = reservationId;
@@ -29,7 +34,10 @@ public class ReservationDTO {
         this.createdAt = createdAt;
     }
 
-    public ReservationDTO(long customerId, long equipmentId, LocalDate reservedFrom, LocalDate reservedTo, BigDecimal totalPrice) {
+    // Convenience constructor for creating new reservation (status defaults to Pending)
+    public ReservationDTO(Long customerId, Long equipmentId,
+                          LocalDate reservedFrom, LocalDate reservedTo,
+                          BigDecimal totalPrice) {
         this.customerId = customerId;
         this.equipmentId = equipmentId;
         this.reservedFrom = reservedFrom;
@@ -38,20 +46,82 @@ public class ReservationDTO {
         this.status = "Pending";
     }
 
-    public long getReservationId() { return reservationId; }
-    public void setReservationId(long reservationId) { this.reservationId = reservationId; }
-    public long getCustomerId() { return customerId; }
-    public void setCustomerId(long customerId) { this.customerId = customerId; }
-    public long getEquipmentId() { return equipmentId; }
-    public void setEquipmentId(long equipmentId) { this.equipmentId = equipmentId; }
-    public LocalDate getReservedFrom() { return reservedFrom; }
-    public void setReservedFrom(LocalDate reservedFrom) { this.reservedFrom = reservedFrom; }
-    public LocalDate getReservedTo() { return reservedTo; }
-    public void setReservedTo(LocalDate reservedTo) { this.reservedTo = reservedTo; }
-    public BigDecimal getTotalPrice() { return totalPrice; }
-    public void setTotalPrice(BigDecimal totalPrice) { this.totalPrice = totalPrice; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-    public Timestamp getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+    // Getters and Setters
+    public Long getReservationId() {
+        return reservationId;
+    }
+
+    public void setReservationId(Long reservationId) {
+        this.reservationId = reservationId;
+    }
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
+
+    public Long getEquipmentId() {
+        return equipmentId;
+    }
+
+    public void setEquipmentId(Long equipmentId) {
+        this.equipmentId = equipmentId;
+    }
+
+    public LocalDate getReservedFrom() {
+        return reservedFrom;
+    }
+
+    public void setReservedFrom(LocalDate reservedFrom) {
+        this.reservedFrom = reservedFrom;
+    }
+
+    public LocalDate getReservedTo() {
+        return reservedTo;
+    }
+
+    public void setReservedTo(LocalDate reservedTo) {
+        this.reservedTo = reservedTo;
+    }
+
+    public BigDecimal getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(BigDecimal totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    @Override
+    public String toString() {
+        return "ReservationDTO{" +
+                "reservationId=" + reservationId +
+                ", customerId=" + customerId +
+                ", equipmentId=" + equipmentId +
+                ", reservedFrom=" + reservedFrom +
+                ", reservedTo=" + reservedTo +
+                ", totalPrice=" + totalPrice +
+                ", status='" + status + '\'' +
+                ", createdAt=" + createdAt +
+                '}';
+    }
 }
