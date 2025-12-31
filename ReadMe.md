@@ -18,7 +18,7 @@ Role-based access control is implemented to restrict features based on user role
 
 ### Database Connectivity
 Configure your database in the DBConnection file under the db package.
-Enter your mysql username and password and the correct database name. 
+Enter your mysql username and password and the correct database name and URL. 
 
 ### Running the application
 Open the MainApp class and run it in an IDE like Intellij.

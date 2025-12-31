@@ -14,7 +14,7 @@ public class DBConnection {
                 "jdbc:mysql://localhost:3306/GearRent?useSSL=false&serverTimezone=UTC";
 
     private static final String USER = "root";
-    private static final String PASSWORD = "Sathira@123"; // change if needed
+    private static final String PASSWORD = "Sathira@123";
 
     private DBConnection() throws SQLException {
         connection = DriverManager.getConnection(URL, USER, PASSWORD);
