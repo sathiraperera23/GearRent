@@ -22,3 +22,19 @@ Enter your mysql username and password and the correct database name.
 
 ### Running the application
 Open the MainApp class and run it in an IDE like Intellij.
+
+## Default User Credentials
+### Admin :
+UserName: admin
+
+Password: admin123
+
+### Branch Manager:
+Username: manager_col
+
+password: manager123
+
+### Staff:
+Username: staff_col
+
+Password: staff123
